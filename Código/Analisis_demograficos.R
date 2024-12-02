@@ -1,9 +1,8 @@
 #######################     INSTALACIÓN DE PAQUETES     ######################
 install.packages("ggplot2")
-install.packages("viridis")
+install.packages("dplyr")
 library(ggplot2)
 library(dplyr)
-library(viridis)
 
 #######################     DISTRIBUCIÓN POR GÉNERO     ######################
 
@@ -87,24 +86,15 @@ ggplot(dataset, aes(x = d_genero, y = d_edad, fill = d_genero)) +
 ########################     DISTRIBUCIÓN ÉTNICA     #########################
 
 # Creación del diagrama de barras para mostrar la distribución étnica 
-
-dataset$etnia <- as.factor(dataset$etnia)
-
-ggplot(dataset, aes(x = etnia, fill = etnia)) + 
-  geom_bar(color = "black") +  # Barras con bordes negros
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) +  # Etiquetas de conteo
-  scale_fill_viridis_d(option = "A", guide = "none") +  # Escala de colores y sin leyenda
+ggplot(dataset, aes(x = etnia)) +
+  geom_bar(fill = "purple", color = "black") +  
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) +  
   labs(title = "Distribución étnica", 
        x = "Grupo étnico", y = "Frecuencia") +  
-  theme_minimal() +  
-  theme(
-    plot.title = element_text(hjust = 0.5),  # Centrar título
-    panel.grid = element_blank(),  # Quitar cuadrícula
-    axis.text.x = element_text(angle = 45, hjust = 1),  # Rotar etiquetas eje X
-    legend.position = "none"  # Quitar leyenda (por si aún se muestra)
-  )
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1))
 
-# Distribución étnica (diagrama de barras)
 
 # Distribución por discapacidad (diagrama de torta)
 
