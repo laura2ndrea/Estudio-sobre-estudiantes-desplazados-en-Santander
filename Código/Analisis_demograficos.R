@@ -56,6 +56,19 @@ ggplot(dataset, aes(x = rango_edad)) +
        x = "Rangos de edad", y = "Frecuencia") +  
   theme(plot.title = element_text(hjust = 0.5)) 
 
+datos_barras <- dataset %>%
+  group_by(rango_edad, d_genero) %>%
+  summarise(conteo = n(), .groups = "drop")  # Calcular la cantidad por grupo
+
+ggplot(datos_barras, aes(x = rango_edad, y = conteo, fill = d_genero)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9), color = "black") +  # Barras agrupadas
+  geom_text(aes(label = conteo), 
+            position = position_dodge(width = 0.9), 
+            vjust = -0.5, size = 4) +  # Etiquetas encima de las barras
+  labs(title = "Distribución de Edad por Rangos y Género", 
+       x = "Rango de Edad", y = "Frecuencia", fill = "Género") +  # Títulos y leyenda
+  theme_minimal()
+
 # Distribución por edad (diagrama de bigotes)
 
 # Distribución étnica (diagrama de barras)
