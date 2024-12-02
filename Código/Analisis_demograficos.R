@@ -46,13 +46,14 @@ rangos_edad <- cut(dataset$d_edad,
 # Agregación de la columna con los rangos en el dataset
 dataset$rango_edad <- rangos_edad
 
-# Creación del diagrama de barras 
+# Creación del diagrama de barras para edad 
 ggplot(dataset, aes(x = rango_edad)) +
   geom_bar(fill = "skyblue", color = "black") +  
   geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) +  
   labs(title = "Distribución por edad (rangos)", 
        x = "Rangos de edad", y = "Frecuencia") +  
-  theme(plot.title = element_text(hjust = 0.5)) 
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_blank())
 
 ###################     DISTRIBUCIÓN POR EDAD Y GÉNERO     ###################
 
@@ -66,12 +67,20 @@ ggplot(datos_barras, aes(x = rango_edad, y = conteo, fill = d_genero)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.9), color = "black") +  # Barras agrupadas
   geom_text(aes(label = conteo), 
             position = position_dodge(width = 0.9), 
-            vjust = -0.5, size = 2.5) +  # Etiquetas encima de las barras
-  labs(title = "Distribución de Edad por Rangos y Género", 
-       x = "Rango de Edad", y = "Frecuencia", fill = "Género") +  # Títulos y leyenda
-  theme_minimal()
+            vjust = -0.5, size = 2.5) +  
+  labs(title = "Distribución de edad y género", 
+       x = "Rango de edad", y = "Frecuencia", fill = "Género") +  
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_blank()) 
 
-# Distribución por edad (diagrama de bigotes)
+# Creación del diagrama de bigotes para edad y sexo 
+ggplot(dataset, aes(x = d_genero, y = d_edad, fill = d_genero)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +  # Diagrama de bigotes
+  labs(title = "Distribución de edad por género",
+       x = "Género", y = "Edad") +  
+  theme(plot.title = element_text(hjust = 0.5),
+                panel.background = element_blank())  +
+  theme(legend.position = "none")  
 
 # Distribución étnica (diagrama de barras)
 
