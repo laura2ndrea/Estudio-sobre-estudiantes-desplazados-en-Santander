@@ -59,6 +59,11 @@ dataset <- dataset %>%
 # Conversión de la columna dane_ant a 'character'
 dataset$dane_ant <- as.character(dataset$dane_ant)
 
+# Conversión de algunas variables categóricas a factor 
+dataset$discapa <- factor(dataset$discapa)
+
+# Renombre de las categorias de la columna discapa
+
 # Verificación del dataset luego de la limpieza
 dim(dataset)
 str(dataset)
