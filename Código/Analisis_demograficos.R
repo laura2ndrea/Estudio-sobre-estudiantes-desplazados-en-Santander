@@ -3,11 +3,9 @@ install.packages("ggplot2")
 library(ggplot2)
 library(dplyr)
 
-###################     ANÁLISIS DEMOGRÁFICO     ##########################
+###################     DISTRIBUCIÓN POR GÉNERO     ##########################
 
-# Distribución por género (diagrama de torta)
-
-## Preparación de los datos 
+# Preparación de los datos 
 datos_genero <- dataset %>%
   count(d_genero) %>%
   mutate(
@@ -16,7 +14,7 @@ datos_genero <- dataset %>%
     etiqueta = paste0(n, " (", porcentaje, "%)") 
   )
 
-## Creación del diagrama de torta 
+# Creación del diagrama de torta
 ggplot(datos_genero, aes(x = "", y = n, fill = renombre_genero)) +
   geom_bar(stat = "identity", width = 1) +  
   coord_polar("y") +                       
@@ -26,11 +24,11 @@ ggplot(datos_genero, aes(x = "", y = n, fill = renombre_genero)) +
   theme_void() +                           
   theme(
     legend.position = "right",
-    plot.title = element_text(hjust = 0.5))        
+    plot.title = element_text(hjust = 0.5)) 
 
-# Distribución por edad (diagrama de barras) 
+###################     DISTRIBUCIÓN POR EDAD     ############################
 
-## Calculo del número de intervalos utilizando la regla de Sturges
+# Cálculo del número de intervalos (usando la regla de Sturges)
 n_datos <- nrow(dataset)  
 rango <- max(dataset$d_edad) - min(dataset$d_edad)
 intervalos <- ceiling(1 + log2(n_datos))  
@@ -39,16 +37,16 @@ amplitud <- floor(rango / intervalos)
 min_edad <- floor(min(dataset$edad))  
 max_edad <- ceiling(max(dataset$edad) + 2)  
 
-## Creación de los rangos de edad 
+# Creación de los rangos de edad 
 rangos_edad <- cut(dataset$d_edad, 
                    breaks = seq(min_edad, max_edad, by = amplitud),  
                    include.lowest = TRUE, 
                    right = FALSE)  
 
-## Agregación de la columnas con los rangos al dataset
+# Agregación de la columna con los rangos en el dataset
 dataset$rango_edad <- rangos_edad
 
-## Creación del diagrama de barras 
+# Creación del diagrama de barras 
 ggplot(dataset, aes(x = rango_edad)) +
   geom_bar(fill = "skyblue", color = "black") +  
   geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) +  
@@ -56,15 +54,17 @@ ggplot(dataset, aes(x = rango_edad)) +
        x = "Rangos de edad", y = "Frecuencia") +  
   theme(plot.title = element_text(hjust = 0.5)) 
 
+###################     DISTRIBUCIÓN POR EDAD Y GÉNERO     ###################
+
 datos_barras <- dataset %>%
   group_by(rango_edad, d_genero) %>%
-  summarise(conteo = n(), .groups = "drop")  # Calcular la cantidad por grupo
+  summarise(conteo = n(), .groups = "drop")  
 
 ggplot(datos_barras, aes(x = rango_edad, y = conteo, fill = d_genero)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.9), color = "black") +  # Barras agrupadas
   geom_text(aes(label = conteo), 
             position = position_dodge(width = 0.9), 
-            vjust = -0.5, size = 4) +  # Etiquetas encima de las barras
+            vjust = -0.5, size = 2.5) +  # Etiquetas encima de las barras
   labs(title = "Distribución de Edad por Rangos y Género", 
        x = "Rango de Edad", y = "Frecuencia", fill = "Género") +  # Títulos y leyenda
   theme_minimal()
