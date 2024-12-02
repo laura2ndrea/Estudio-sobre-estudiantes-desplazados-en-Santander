@@ -56,10 +56,12 @@ ggplot(dataset, aes(x = rango_edad)) +
 
 ###################     DISTRIBUCIÓN POR EDAD Y GÉNERO     ###################
 
+# Agrupación y resumen de los datos 
 datos_barras <- dataset %>%
   group_by(rango_edad, d_genero) %>%
   summarise(conteo = n(), .groups = "drop")  
 
+# Creación del diagrama de barras para edad y sexo 
 ggplot(datos_barras, aes(x = rango_edad, y = conteo, fill = d_genero)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.9), color = "black") +  # Barras agrupadas
   geom_text(aes(label = conteo), 
