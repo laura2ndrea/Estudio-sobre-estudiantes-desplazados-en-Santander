@@ -1,6 +1,6 @@
 ---
 title: "Estudio sobre estudiantes en situación de desplazamiento en Santander"
-author: "Laura An"
+author: ""
 date: "`r Sys.Date()`"
 output: 
   html_document: 
@@ -55,6 +55,8 @@ library(RColorBrewer)
 
 ## Análisis exploratorio de los datos
 
+# Resultados
+
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 library(dplyr)
 library(skimr)
@@ -82,7 +84,7 @@ dataset <- dataset %>%
 
 ```
 
-### Análisis demográfico
+## Análisis demográfico
 Enfocado en analizar las características de la población estudiantil desplazada. 
 
 **¿Cómo se distribuye la población por género?**
@@ -275,12 +277,12 @@ ggplot(dataset, aes(y = d_tipo)) +
 
 ```
 
-### Análisis geográfico
+## Análisis geográfico
 Enfocado en analizar cómo se distribuye la población. 
 
 **¿Cómo está distribuida la población entre los diferentes municipios y provincias?**
 
-### Análisis de las instituciones 
+## Análisis de las instituciones 
 Enfocado en analizar las instituciones educativas y su relación con la población desplazada. 
 
 **¿A qué sector pertenecen las instituciones en donde estudian las personas desplazadas?**
@@ -292,14 +294,12 @@ Enfocado en analizar las instituciones educativas y su relación con la poblaci�
 **¿Qué instituciones han absorbido más sedes?** 
 
 
-### Análisis relacional 
+## Análisis relacional 
 Enfocado en explorar correlaciones o patrones entre las variables del dataset. 
 
 **¿Existe relación entre el método educativo y características demográficas como género, étnica y edad?**
 
 **¿Cómo se relacionan los motivos de desplazamiento con el grupo étnico de los personas?**
-
-# Resultados
 
 -   Información resumida sobre las variables de interés (luego de la limpieza)
 -   Mostrar información no evidente
