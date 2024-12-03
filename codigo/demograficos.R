@@ -89,7 +89,7 @@ ggplot(dataset, aes(x = d_genero, y = d_edad, fill = d_genero)) +
 # Determinar si pertence o no a una etnia y agregar la columna al dataset
 dataset$pertenece_etnia <- ifelse(dataset$etnia == "NINGUN GRUPO ETNICO", "NO PERTENECE", "PERTENECE")
 
-# Creación del diagrama de torta que indica si pertene o no a una etnia
+# Creación del diagrama de torta que indica si pertenece o no a una etnia
 ggplot(dataset, aes(x = "", fill = pertenece_etnia)) +
   geom_bar(stat = "count", width = 1, color = "white") +  
   coord_polar("y") +  
@@ -99,7 +99,7 @@ ggplot(dataset, aes(x = "", fill = pertenece_etnia)) +
   theme_void() + 
   theme(plot.title = element_text(hjust = 0.5))  
 
-# Filtrar datos para mostrar solo a las personas que pertenecen a una etnia 
+# Filtrar datos para mostrar solo a los estudiantes que pertenecen a una etnia 
 dataset_etnia <- dataset[dataset$pertenece_etnia == "PERTENECE", ]
 
 # Creación del diagrama de barras para mostrar la distribución de los estudiantes que pertenecen a una etnia
@@ -114,8 +114,24 @@ ggplot(dataset_etnia, aes(y = etnia)) +
 
 ####################     DISTRIBUCIÓN POR DISCAPACIDAD   #####################
 
+# Determinar si tiene o no una discapacidad y agregar la columna al dataset
+dataset$tiene_discapacidad <- ifelse(dataset$discapa == "NO TIENE DISCAPACIDAD", "NO TIENE", "TIENE")
+
+# Creación del diagrama de torta que indica si tiene o no una discapacidad
+ggplot(dataset, aes(x = "", fill = tiene_discapacidad)) +
+  geom_bar(stat = "count", width = 1, color = "white") +  
+  coord_polar("y") +  
+  geom_text(stat = "count", aes(label = paste0(..count.., " (", round(..count../sum(..count..)*100, 1), "%)")), 
+            position = position_stack(vjust = 0.5), size = 4) +  
+  labs(title = "Distribución por discapacidad (tiene o no una discapacidad)", fill = "Discapacidad") +  
+  theme_void() + 
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+# Filtrar datos para mostrar solo a los estudiantes que tienen una discapacidad
+dataset_discapacidad <- dataset[dataset$tiene_discapacidad == "TIENE", ]
+
 # Creación del diagrama de barras para mostrar la distribución por discapacidad
-ggplot(dataset, aes(x = discapa, fill = discapa)) +
+ggplot(dataset_discapacidad, aes(x = discapa, fill = discapa)) +
   geom_bar(color = "white") +  
   geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) +  
   scale_fill_brewer(palette = "Set1") +  
