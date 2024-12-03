@@ -37,10 +37,9 @@ rango <- max(dataset$d_edad) - min(dataset$d_edad)
 intervalos <- ceiling(1 + log2(n_datos))  
 amplitud <- floor(rango / intervalos)
 
-min_edad <- floor(min(dataset$edad))  
-max_edad <- ceiling(max(dataset$edad) + 2)  
+min_edad <- floor(min(dataset$d_edad))  
+max_edad <- ceiling(max(dataset$d_edad) + 2)  
 
-# Creación de los rangos de edad 
 rangos_edad <- cut(dataset$d_edad, 
                    breaks = seq(min_edad, max_edad, by = amplitud),  
                    include.lowest = TRUE, 
@@ -52,7 +51,7 @@ dataset$rango_edad <- rangos_edad
 # Creación del diagrama de barras para edad 
 ggplot(dataset, aes(x = rango_edad)) +
   geom_bar(fill = "skyblue", color = "white") +  
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) +  
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3) +  
   labs(title = "Distribución por edad", 
        x = "Rangos de edad", y = "Frecuencia") +  
   theme(plot.title = element_text(hjust = 0.5),
@@ -71,7 +70,7 @@ ggplot(datos_barras, aes(x = rango_edad, y = conteo, fill = d_genero)) +
   geom_text(aes(label = conteo), 
             position = position_dodge(width = 0.9), 
             vjust = -0.5, size = 2.5) +  
-  labs(title = "Distribución de edad y género", 
+  labs(title = "Distribución por edad y género", 
        x = "Rango de edad", y = "Frecuencia", fill = "Género") +  
   theme(plot.title = element_text(hjust = 0.5),
         panel.background = element_blank()) 
@@ -87,15 +86,31 @@ ggplot(dataset, aes(x = d_genero, y = d_edad, fill = d_genero)) +
 
 ########################     DISTRIBUCIÓN ÉTNICA     #########################
 
-# Creación del diagrama de barras para mostrar la distribución étnica 
-ggplot(dataset, aes(x = etnia)) +
+# Determinar si pertence o no a una etnia y agregar la columna al dataset
+dataset$pertenece_etnia <- ifelse(dataset$etnia == "NINGUN GRUPO ETNICO", "NO PERTENECE", "PERTENECE")
+
+# Creación del diagrama de torta que indica si pertene o no a una etnia
+ggplot(dataset, aes(x = "", fill = pertenece_etnia)) +
+  geom_bar(stat = "count", width = 1, color = "white") +  
+  coord_polar("y") +  
+  geom_text(stat = "count", aes(label = paste0(..count.., " (", round(..count../sum(..count..)*100, 1), "%)")), 
+            position = position_stack(vjust = 0.5), size = 4) +  
+  labs(title = "Distribución étnica (pertenece o no a una etnia)", fill = "Etnia") +  
+  theme_void() + 
+  theme(plot.title = element_text(hjust = 0.5))  
+
+# Filtrar datos para mostrar solo a las personas que pertenecen a una etnia 
+dataset_etnia <- dataset[dataset$pertenece_etnia == "PERTENECE", ]
+
+# Creación del diagrama de barras para mostrar la distribución de los estudiantes que pertenecen a una etnia
+ggplot(dataset_etnia, aes(y = etnia)) +
   geom_bar(fill = "purple", color = "white") +  
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) +  
-  labs(title = "Distribución étnica", 
-       x = "Grupo étnico", y = "Frecuencia") +  
+  geom_text(stat = "count", aes(label = ..count..), hjust = -0.2, size = 3) +  
+  labs(title = "Distribución por grupo étnico", 
+       x = "Frecuencia", y = "Grupo étnico") +  
   theme(plot.title = element_text(hjust = 0.5),
         panel.background = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1))
+        axis.text.y = element_text(angle = 0, hjust = 1))
 
 ####################     DISTRIBUCIÓN POR DISCAPACIDAD   #####################
 
@@ -111,6 +126,8 @@ ggplot(dataset, aes(x = discapa, fill = discapa)) +
         axis.text.x = element_blank(),  
         legend.position = "right",  
         legend.title = element_blank())  
+
+# Creación del diagrama de torta para mostrar la distribución por discapacidad
 
 #################   DISTRIBUCIÓN POR TIPO DE DESPLAZAMIENTO  #################
 
