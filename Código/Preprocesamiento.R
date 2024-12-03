@@ -61,8 +61,22 @@ dataset$dane_ant <- as.character(dataset$dane_ant)
 
 # Conversión de algunas variables categóricas a factor 
 dataset$discapa <- factor(dataset$discapa)
+dataset$d_tipo <- factor(dataset$d_tipo)
 
 # Renombre de las categorias de la columna discapa
+dataset <- dataset %>%
+  mutate(discapa = recode(discapa, 
+                          "DISCAPACIDAD VISUAL BAJA VISIÓN IRREVERS" = "DISCAPACIDAD VISUAL", 
+                          "DISCAPACIDAD VISUAL SEGUERA" = "DISCAPACIDAD VISUAL", 
+                          "DISCAPACIDAD VISUAL BAJA VISIÓN IRREVERSIBLE" = "DISCAPACIDAD VISUAL",
+                          "DISCAPACIDAD VISUAL CEGUERA" = "DISCAPACIDAD VISUAL",    
+                          "DISCAPACIDAD AUDITIVA - USUARIO DE LENGU" = "DISCAPACIDAD AUDITIVA", 
+                          "AUDITIVA  USUARIO DEL CASTELLANO" = "DISCAPACIDAD AUDITIVA", 
+                          "DISCAPACIDAD AUDITIVA USUARIO DEL CASTELLANO" = "DISCAPACIDAD AUDITIVA",
+                          "DISCAPACIDAD AUDITIVA - USUARIO DE LENGUA DE SEÑAS COLOMBIANA" = "DISCAPACIDAD AUDITIVA",
+                          "DISCAPACIDAD FÍSICA" = "DISCAPACIDAD FISICA"))
+
+unique(dataset$discapa)
 
 # Verificación del dataset luego de la limpieza
 dim(dataset)
