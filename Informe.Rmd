@@ -1,0 +1,133 @@
+---
+title: "Estudio sobre estudiantes en situación de desplazamiento en Santander"
+author: "Hoover Rueda-Chacón"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    theme: yeti                # Opciones: default, journal, yeti, cerulean, darkly
+    toc: TRUE                     # incluir table of contents (true/false)
+    toc_float: TRUE               # toc flotante a la izquierda (true/false)
+    number_sections: TRUE         # numerar secciones y subsecciones (true/false)
+    code_folding: show            # por defecto el código aparecerá oculto: show/hide
+lang: es-ES
+---
+
+# Titulo de primer nivel
+
+## Titulo de segundo nivel
+
+### Titulo de tercer nivel
+
+# Tipos de letra
+
+*Texto en cursiva*
+
+**Texto en negrilla**
+
+***Texto en cursiva y negrilla***
+
+# Links
+
+Agregar hipervínculos: [Link a Cormoran](http://ingsistemas.uis.edu.co/eisi/)
+
+```{r include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Agregando código de R
+
+Para todas las opciones visitar: <https://yihui.org/knitr/options/>
+
+## Que lo agregue y lo ejecute
+
+```{r}
+summary(cars)
+```
+
+## Que lo muestre pero no lo ejecute (`eval=FALSE`)
+
+```{r, eval=FALSE}
+summary(cars)
+```
+
+## Que lo ejecute pero no lo muestre (`echo=FALSE`)
+
+```{r, echo=FALSE}
+summary(cars)
+```
+
+# Insertando tablas
+
+```{r}
+knitr::kable(
+  head(mtcars), 
+  caption = "Una kable knitr"
+)
+```
+
+# Agregango gráficas
+
+```{r echo=FALSE}
+plot(pressure)
+```
+
+El parámetro `echo = FALSE` se agregó al fragmento de código para evitar la impresión del código R que generó el gráfico.
+
+# Insertando figuras externas
+
+![Nombre/titulo/caption de la figura](Figuras/R_logo.png){width="20%"}
+
+![Dos imágenes juntas](Figuras/R_logo.png){width="20%"}![FF](Figuras/R_logo.png){width="20%"}
+
+![Directamente de internet](https://bookdown.org/Rcduarte/cursor2021/images/rmarkdown.png){width="20%" height="100px"}
+
+# Insertando videos
+
+Ojo con las instrucciones: Primero installar devtools y después el paquete vembedr directamente desde github:
+
+```{r eval=FALSE}
+install.packages("devtools")
+devtools::install_github("ijlyttle/vembedr")
+```
+
+Ahora si, hacer la siguiente instrucción para incluir libreria y después insertar video:
+
+```{r setup}
+library(vembedr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Note, que para insertar video de Youtube, solo debes agregar la última parte de la URL (lo que está después de v=): <https://www.youtube.com/watch?v=ULHaHgXunUg>"
+
+```{r}
+embed_youtube("ULHaHgXunUg")
+```
+
+# Insertando Ecuaciones de Latex
+
+El segundo momento se denota por: $\sigma^2[X] = E[X^2] - (E[X])^2$
+
+La distribucón Binomial está dada por la siguiente ecuación:
+
+```{=tex}
+\begin{equation} 
+  f\left(k\right) = \binom{n}{k} p^k\left(1-p\right)^{n-k} \hspace{1cm} (Ec. 1)
+\end{equation}
+```
+# Insertando listas en viñetas
+
+Tenemos las siguientes opciones:
+
+-   Lista
+-   Lista
+    -   Sub-lista
+
+1.  Uno
+2.  Dos
+    a.  A
+
+Regla horizontal
+
+------------------------------------------------------------------------
+
+Si quiere insertar código en linea como `plot(x,y)`, hacerlo entre comillas invertidas
