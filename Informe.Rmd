@@ -1,133 +1,316 @@
 ---
 title: "Estudio sobre estudiantes en situación de desplazamiento en Santander"
-author: "Hoover Rueda-Chacón"
+author: "Laura An"
 date: "`r Sys.Date()`"
 output: 
   html_document: 
-    theme: yeti                # Opciones: default, journal, yeti, cerulean, darkly
-    toc: TRUE                     # incluir table of contents (true/false)
-    toc_float: TRUE               # toc flotante a la izquierda (true/false)
-    number_sections: TRUE         # numerar secciones y subsecciones (true/false)
-    code_folding: show            # por defecto el código aparecerá oculto: show/hide
+    theme: yeti
+    toc: TRUE
+    toc_float: TRUE
+    number_sections: TRUE
+    code_folding: show
 lang: es-ES
+header-includes:
+  - \usepackage{graphicx}
+  - |
+    \usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \fancyhf{}
+    \renewcommand{\headrulewidth}{0pt}
 ---
 
-# Titulo de primer nivel
-
-## Titulo de segundo nivel
-
-### Titulo de tercer nivel
-
-# Tipos de letra
-
-*Texto en cursiva*
-
-**Texto en negrilla**
-
-***Texto en cursiva y negrilla***
-
-# Links
-
-Agregar hipervínculos: [Link a Cormoran](http://ingsistemas.uis.edu.co/eisi/)
-
-```{r include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-# Agregando código de R
-
-Para todas las opciones visitar: <https://yihui.org/knitr/options/>
-
-## Que lo agregue y lo ejecute
-
-```{r}
-summary(cars)
-```
-
-## Que lo muestre pero no lo ejecute (`eval=FALSE`)
-
-```{r, eval=FALSE}
-summary(cars)
-```
-
-## Que lo ejecute pero no lo muestre (`echo=FALSE`)
-
-```{r, echo=FALSE}
-summary(cars)
-```
-
-# Insertando tablas
-
-```{r}
-knitr::kable(
-  head(mtcars), 
-  caption = "Una kable knitr"
-)
-```
-
-# Agregango gráficas
-
-```{r echo=FALSE}
-plot(pressure)
-```
-
-El parámetro `echo = FALSE` se agregó al fragmento de código para evitar la impresión del código R que generó el gráfico.
-
-# Insertando figuras externas
-
-![Nombre/titulo/caption de la figura](Figuras/R_logo.png){width="20%"}
-
-![Dos imágenes juntas](Figuras/R_logo.png){width="20%"}![FF](Figuras/R_logo.png){width="20%"}
-
-![Directamente de internet](https://bookdown.org/Rcduarte/cursor2021/images/rmarkdown.png){width="20%" height="100px"}
-
-# Insertando videos
-
-Ojo con las instrucciones: Primero installar devtools y después el paquete vembedr directamente desde github:
-
-```{r eval=FALSE}
-install.packages("devtools")
-devtools::install_github("ijlyttle/vembedr")
-```
-
-Ahora si, hacer la siguiente instrucción para incluir libreria y después insertar video:
-
-```{r setup}
-library(vembedr)
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-Note, que para insertar video de Youtube, solo debes agregar la última parte de la URL (lo que está después de v=): <https://www.youtube.com/watch?v=ULHaHgXunUg>"
-
-```{r}
-embed_youtube("ULHaHgXunUg")
-```
-
-# Insertando Ecuaciones de Latex
-
-El segundo momento se denota por: $\sigma^2[X] = E[X^2] - (E[X])^2$
-
-La distribucón Binomial está dada por la siguiente ecuación:
-
-```{=tex}
-\begin{equation} 
-  f\left(k\right) = \binom{n}{k} p^k\left(1-p\right)^{n-k} \hspace{1cm} (Ec. 1)
-\end{equation}
-```
-# Insertando listas en viñetas
-
-Tenemos las siguientes opciones:
-
--   Lista
--   Lista
-    -   Sub-lista
-
-1.  Uno
-2.  Dos
-    a.  A
-
-Regla horizontal
+::: {style="text-align: center; margin-bottom: 20px;"}
+<img src="imagenes/portada_desplazamiento.png" style="max-width: 100%; height: auto;"/>
+:::
 
 ------------------------------------------------------------------------
 
-Si quiere insertar código en linea como `plot(x,y)`, hacerlo entre comillas invertidas
+# Introducción
+
+Planteamiento del problema, explicación de como se planea abordar el problema (datos y metodología), enfoque actual / técnica analitica, propuesta de como se abordara este problema y como el análisis ayudará al consumidor de este.
+
+# Metodología
+
+## Paquetes
+
+Paquetes necesarios para hacer el analisis así como el propósito de cada uno (QUITAR CUANDO TERMINE)
+
+```{r, eval=FALSE}
+install.packages("skimr")
+install.packages("ggplot2")
+install.packages("dplyr")
+install.packages("RColorBrewer")
+```
+
+```{r eval=FALSE}
+library(skimr)
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+```
+## Preparación de los datos
+1.  Fuente junto con una explicación general de los datos (propósitos, cuando se recopilaron, cuantas variables habían, peculiaridades, etc)
+2.  Pasos de importación y limpieza de datos
+3.  Mostrar como se ven los datos finales
+
+## Análisis exploratorio de los datos
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(skimr)
+dataset <- read.csv("Estudiantes_en_situacion_de_desplazamiento_Santander.csv")
+
+dataset <- dataset %>%
+  select(-edad, -d_nomjor, -d_hombres, -d_mujeres, -sector)
+
+dataset$dane_ant <- as.character(dataset$dane_ant)
+
+dataset$discapa <- factor(dataset$discapa)
+dataset$d_tipo <- factor(dataset$d_tipo)
+
+dataset <- dataset %>%
+  mutate(discapa = recode(discapa, 
+                          "DISCAPACIDAD VISUAL BAJA VISIÓN IRREVERS" = "DISCAPACIDAD VISUAL", 
+                          "DISCAPACIDAD VISUAL SEGUERA" = "DISCAPACIDAD VISUAL", 
+                          "DISCAPACIDAD VISUAL BAJA VISIÓN IRREVERSIBLE" = "DISCAPACIDAD VISUAL",
+                          "DISCAPACIDAD VISUAL CEGUERA" = "DISCAPACIDAD VISUAL",    
+                          "DISCAPACIDAD AUDITIVA - USUARIO DE LENGU" = "DISCAPACIDAD AUDITIVA", 
+                          "AUDITIVA  USUARIO DEL CASTELLANO" = "DISCAPACIDAD AUDITIVA", 
+                          "DISCAPACIDAD AUDITIVA USUARIO DEL CASTELLANO" = "DISCAPACIDAD AUDITIVA",
+                          "DISCAPACIDAD AUDITIVA - USUARIO DE LENGUA DE SEÑAS COLOMBIANA" = "DISCAPACIDAD AUDITIVA",
+                          "DISCAPACIDAD FÍSICA" = "DISCAPACIDAD FISICA"))
+
+```
+
+### Análisis demográfico
+Enfocado en analizar las características de la población estudiantil desplazada. 
+
+**¿Cómo se distribuye la población por género?**
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+
+datos_genero <- dataset %>%
+  count(d_genero) %>%
+  mutate(
+    porcentaje = round(n / sum(n) * 100, 1),  
+    renombre_genero = recode(d_genero, "F" = "FEMENINO", "M" = "MASCULINO"),  
+    etiqueta = paste0(n, " (", porcentaje, "%)") 
+  )
+
+ggplot(datos_genero, aes(x = "", y = n, fill = renombre_genero)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +  
+  coord_polar("y") +                       
+  geom_text(aes(label = etiqueta),          
+            position = position_stack(vjust = 0.5), size = 4) + 
+  labs(title = "Distribución por género", fill = "Género") +
+  theme_void() +                           
+  theme(
+    legend.position = "right",
+    plot.title = element_text(hjust = 0.5)) 
+```
+
+**¿Cuál es la distribución de la población por edades?**
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+
+n_datos <- nrow(dataset)  
+rango <- max(dataset$d_edad) - min(dataset$d_edad)
+intervalos <- ceiling(1 + log2(n_datos))  
+amplitud <- floor(rango / intervalos)
+
+min_edad <- floor(min(dataset$d_edad))  
+max_edad <- ceiling(max(dataset$d_edad) + 2)  
+
+rangos_edad <- cut(dataset$d_edad, 
+                   breaks = seq(min_edad, max_edad, by = amplitud),  
+                   include.lowest = TRUE, 
+                   right = FALSE)  
+
+dataset$rango_edad <- rangos_edad
+
+ggplot(dataset, aes(x = rango_edad)) +
+  geom_bar(fill = "skyblue", color = "white") +  
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 3) +  
+  labs(title = "Distribución por edad", 
+       x = "Rangos de edad", y = "Frecuencia") +  
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_blank())
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+
+datos_barras <- dataset %>%
+  group_by(rango_edad, d_genero) %>%
+  summarise(conteo = n(), .groups = "drop")  
+
+ggplot(datos_barras, aes(x = rango_edad, y = conteo, fill = d_genero)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9), color = "white") +  
+  geom_text(aes(label = conteo), 
+            position = position_dodge(width = 0.9), 
+            vjust = -0.5, size = 2.5) +  
+  labs(title = "Distribución por edad y género", 
+       x = "Rango de edad", y = "Frecuencia", fill = "Género") +  
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_blank(), 
+        axis.text.x = element_text(size = 7)) 
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+
+ggplot(dataset, aes(x = d_genero, y = d_edad, fill = d_genero)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +  
+  labs(title = "Distribución de edad por género",
+       x = "Género", y = "Edad") +  
+  theme(plot.title = element_text(hjust = 0.5),
+                panel.background = element_blank())  +
+  theme(legend.position = "none") 
+```
+
+
+**¿Cómo se distribuye la población según la etnia? **
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+
+dataset$pertenece_etnia <- ifelse(dataset$etnia == "NINGUN GRUPO ETNICO", "NO PERTENECE", "PERTENECE")
+
+ggplot(dataset, aes(x = "", fill = pertenece_etnia)) +
+  geom_bar(stat = "count", width = 1, color = "white") +  
+  coord_polar("y") +  
+  geom_text(stat = "count", aes(label = paste0(..count.., " (", round(..count../sum(..count..)*100, 1), "%)")), 
+            position = position_stack(vjust = 0.5), size = 4) +  
+  labs(title = "Distribución étnica (pertenece o no a una etnia)", fill = "Etnia") +  
+  theme_void() + 
+  theme(plot.title = element_text(hjust = 0.5))  
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+
+dataset_etnia <- dataset[dataset$pertenece_etnia == "PERTENECE", ]
+
+ggplot(dataset_etnia, aes(y = etnia)) +
+  geom_bar(fill = "purple", color = "white") +  
+  geom_text(stat = "count", aes(label = ..count..), hjust = -0.2, size = 3) +  
+  labs(title = "Distribución por grupo étnico", 
+       x = "Frecuencia", y = "Grupo étnico") +  
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_blank(),
+        axis.text.y = element_text(angle = 0, hjust = 1))
+```
+
+**¿Qué proporción de la población tiene alguna discapacidad?**
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+
+dataset$tiene_discapacidad <- ifelse(dataset$discapa == "NO TIENE DISCAPACIDAD", "NO TIENE", "TIENE")
+
+ggplot(dataset, aes(x = "", fill = tiene_discapacidad)) +
+  geom_bar(stat = "count", width = 1, color = "white") +  
+  coord_polar("y") +  
+  geom_text(stat = "count", aes(label = paste0(..count.., " (", round(..count../sum(..count..)*100, 1), "%)")), 
+            position = position_stack(vjust = 0.5), size = 4) +  
+  labs(title = "Distribución por discapacidad (tiene o no una discapacidad)", fill = "Discapacidad") +  
+  theme_void() + 
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+
+dataset_discapacidad <- dataset[dataset$tiene_discapacidad == "TIENE", ]
+
+ggplot(dataset_discapacidad, aes(x = discapa, fill = discapa)) +
+  geom_bar(color = "white") +  
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) +  
+  scale_fill_brewer(palette = "Set1") +  
+  labs(title = "Distribución por discapacidad", 
+       x = "Discapacidad", y = "Frecuencia") +  
+  theme(plot.title = element_text(hjust = 0.5),  
+        panel.background = element_blank(),  
+        axis.text.x = element_blank(),  
+        legend.position = "right",  
+        legend.title = element_blank())  
+```
+
+**¿Cuáles son los tipos de desplazamiento más comunes?**
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+
+ggplot(dataset, aes(y = d_tipo)) +
+  geom_bar(fill = "red", color = "white") +  
+  geom_text(stat = "count", aes(label = ..count..), hjust = -0.2, size = 3) +  
+  labs(title = "Distribución por tipo de desplazamiento", 
+       x = "Frecuencia", y = "Tipo de desplazamiento") +  
+  theme(plot.title = element_text(hjust = 0.5),  
+        panel.background = element_blank(),  
+        axis.text.x = element_text(angle = 0, hjust = 1),  
+        legend.position = "none")  
+
+```
+
+### Análisis geográfico
+Enfocado en analizar cómo se distribuye la población. 
+
+**¿Cómo está distribuida la población entre los diferentes municipios y provincias?**
+
+### Análisis de las instituciones 
+Enfocado en analizar las instituciones educativas y su relación con la población desplazada. 
+
+**¿A qué sector pertenecen las instituciones en donde estudian las personas desplazadas?**
+
+**¿Qué método educativo es más común entre los estudiantes desplazados?**
+
+**¿Cuáles son los institutos con mayor número de estudiantes desplazados?**
+
+**¿Qué instituciones han absorbido más sedes?** 
+
+
+### Análisis relacional 
+Enfocado en explorar correlaciones o patrones entre las variables del dataset. 
+
+**¿Existe relación entre el método educativo y características demográficas como género, étnica y edad?**
+
+**¿Cómo se relacionan los motivos de desplazamiento con el grupo étnico de los personas?**
+
+# Resultados
+
+-   Información resumida sobre las variables de interés (luego de la limpieza)
+-   Mostrar información no evidente
+-   Resultados en forma de gráfico y tablas (Facilidad para ver y comprender los resutados)
+
+# Discusión
+
+Interpretación de los resultados, discutir si los resultados responden a la pregunta hecha inicialmente.
+
+# Conclusiones
+
+Resumen del problema, resumen de como se abordo el problema (metodologia), ideas interesantes en el analisis, implicaciones para el consumidor, limitaciones de analisis y como se podria mejorar.
+
+# Referencias
