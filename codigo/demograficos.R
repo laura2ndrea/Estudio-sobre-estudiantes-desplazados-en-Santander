@@ -148,23 +148,13 @@ ggplot(dataset_discapacidad, aes(x = discapa, fill = discapa)) +
 #################   DISTRIBUCIÓN POR TIPO DE DESPLAZAMIENTO  #################
 
 # Definir una paleta de colores personalizada
-colores_vibrantes <- c(
-  "#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#0000FF", 
-  "#4B0082", "#8B00FF", "#FF1493", "#FF6347", "#00FFFF",
-  "#FFD700", "#ADFF2F", "#FF4500", "#32CD32", "#8A2BE2",
-  "#A52A2A", "#5F9EA0", "#D2691E", "#FF8C00"
-)
-
-ggplot(dataset, aes(x = d_tipo, fill = d_tipo)) +
-  geom_bar(color = "white") +  
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3) +  
-  scale_fill_manual(values = colores_vibrantes) +  
+ggplot(dataset, aes(y = d_tipo)) +
+  geom_bar(fill = "red", color = "white") +  
+  geom_text(stat = "count", aes(label = ..count..), hjust = -0.2, size = 3) +  
   labs(title = "Distribución por tipo de desplazamiento", 
-       x = "Tipo de desplazamiento", y = "Frecuencia") +  
+       x = "Frecuencia", y = "Tipo de desplazamiento") +  
   theme(plot.title = element_text(hjust = 0.5),  
         panel.background = element_blank(),  
-        axis.text.x = element_blank(),  
-        legend.position = "right",  
-        legend.title = element_blank(),  
-        legend.key.size = unit(0.8, "cm"))  
+        axis.text.x = element_text(angle = 0, hjust = 1),  
+        legend.position = "none")  
 
