@@ -1,6 +1,9 @@
 ---
 title: "Estudio sobre estudiantes en situación de desplazamiento en Santander"
-author: ""
+author: 
+  - Erick Mateo Hernandez Rangel 
+  - Nicolás Cárdenas Rodríguez
+  - Laura Andrea Rodríguez Mejía
 date: "`r Sys.Date()`"
 output: 
   html_document: 
@@ -30,24 +33,27 @@ header-includes:
 Planteamiento del problema, explicación de como se planea abordar el problema (datos y metodología), enfoque actual / técnica analitica, propuesta de como se abordara este problema y como el análisis ayudará al consumidor de este.
 
 # Metodología
+El dataset utilizado para la realización de este estudio contiene información acerca de estudiantes en sitación de desplazamiento matriculados en instituciones educativas de los 82 municipios no certificados del departamento de Santander. Los datos fueron recopilados y actualizados por la **Secretaría de Educación de Santander**. 
+
+**Origen y última actualización**
+
+- **Creación: ** 30 de septiembre del 2022.
+
+- **Última actualización: ** 29 de julio del 2024. 
+
+- **Fuente oficial:** [Datos Abiertos Colombia - Estudiantes en situación de desplazamiento en Santander](https://www.datos.gov.co/Educaci-n/ESTUDIANTES-EN-SITUACI-N-DE-DESPLAZAMIENTO-EN-SANT/wemp-b8gd/about_data)
 
 ## Paquetes
+Para la realización de este proyecto, se utilizaron los siguientes paquetes: 
 
-Paquetes necesarios para hacer el analisis así como el propósito de cada uno (QUITAR CUANDO TERMINE)
+-  `library(skimr)`: este paquete se empleó para obtener un resumen detallado del conjunto de datos. Gracias a él, pudimos explorar las principales características del dataset de manera eficiente.
 
-```{r, eval=FALSE}
-install.packages("skimr")
-install.packages("ggplot2")
-install.packages("dplyr")
-install.packages("RColorBrewer")
-```
+- `ggplot2`: este paquete fue utilizado para crear gráficos de alta calidad. Nos permitió generar diversos diagramas que muestran distribuciones y relaciones entre los datos
 
-```{r eval=FALSE}
-library(skimr)
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
-```
+-  `dplyr`: este paquete fue usado para la manipulación de datos. Con él, pudimos filtrar, seleccionar, transformar y resumir la información, facilitando la preparación de los datos necesarios para las visualizaciones.
+
+-  `RColorBrewer`: este paquete ofrece paletas de colores predefinidas, con el pudimos mejorar la estética de nuestros gráficos y hacerlos visualmente mas atractivos. 
+
 ## Preparación de los datos
 1.  Fuente junto con una explicación general de los datos (propósitos, cuando se recopilaron, cuantas variables habían, peculiaridades, etc)
 2.  Pasos de importación y limpieza de datos
