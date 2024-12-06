@@ -43,6 +43,36 @@ El dataset utilizado para la realización de este estudio contiene información 
 
 - **Fuente oficial:** [Datos Abiertos Colombia - Estudiantes en situación de desplazamiento en Santander](https://www.datos.gov.co/Educaci-n/ESTUDIANTES-EN-SITUACI-N-DE-DESPLAZAMIENTO-EN-SANT/wemp-b8gd/about_data)
 
+**Estructura del dataset**
+
+El dataset tiene **22 variables** (columnas) y **18.062 registros**, con información que abarca desde datos sobre las instituciones educativas hasta características específicas de los estudiantes. Algunas de sus variables mas importantes son: 
+
+- **d_ano**:  año en que se recopilo la informació0.n 
+
+- **d_muni** y **d_nombmuni**: código y nombre de los municipios.
+
+- **d_provincia**:  provincia a la que pertenece el municipio. 
+
+- **d_nomsec**: naturaleza de la institución (privada u oficial).
+
+- **dane_ant** y **d_sede**:  codido DANE anterior de la institución (si aplica) y código DANE actual. 
+
+- **d_nombinst**: nombre del instituto donde esta matriculado el estudiante. 
+
+- **d_grado**: grado académico del estudiante. 
+
+- **d_genero** y **edad**:  edad del estudiante. 
+
+- **d_genero**, **d_hombres**, **d_mujeres**: información relacionada con el género. 
+
+- **d_tipo**: clasificación según el tipo de desplazamiento. 
+
+- **etnia**: indica a que grupo étnico pertence el estudiante. 
+
+- **discapa**: indica si el estudiante tiene una discapacidad. 
+
+- **metodo**: método educativo del estudiante.  
+
 ## Paquetes
 Para la realización de este proyecto, se utilizaron los siguientes paquetes: 
 
@@ -55,9 +85,26 @@ Para la realización de este proyecto, se utilizaron los siguientes paquetes:
 -  `RColorBrewer`: este paquete ofrece paletas de colores predefinidas, con el pudimos mejorar la estética de nuestros gráficos y hacerlos visualmente mas atractivos. 
 
 ## Preparación de los datos
-1.  Fuente junto con una explicación general de los datos (propósitos, cuando se recopilaron, cuantas variables habían, peculiaridades, etc)
-2.  Pasos de importación y limpieza de datos
-3.  Mostrar como se ven los datos finales
+
+**Cargado del dataset**
+Para empezar, cargamos el dataset utilizando la función `read.csv()`, de esta forma pudimos importar los datos desde el archivo (CSV) para trabajar con el ellos. 
+
+**Exploración del dataset**
+Antes de empezar con la limpieza de los datos, hicimos una exploración inicial del dataset para entender su contenido y estructura: 
+
+1. Usamos `dim()` para verificar el número de filas y columnas y `str()` para explorar que tipo de datos tiene cada columna. 
+
+2. Con `summary()` y `skim()` generamos resúmenes estadísticos para entender mejor los valores de las variables. 
+
+3. Con `head()` y `tail()` inspeccionamos los registros iniciales y finales del dataset. 
+
+4. También utilizamos `sum(is.na(dataset))` para identificar si habian valores faltantes y cuantos eran. 
+
+5. Con `unique()` y `summary()` exploramos mas a detalles columnas de interés para nuestro estudio. 
+
+En base a esta exploración inicial podemos decir lo siguiente sobre el dataset: 
+
+**Limpieza de los datos**
 
 ## Análisis exploratorio de los datos
 
@@ -288,16 +335,194 @@ Enfocado en analizar cómo se distribuye la población.
 
 **¿Cómo está distribuida la población entre los diferentes municipios y provincias?**
 
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Instalar y cargar librerías necesarias
+if (!require(httr)) install.packages("httr")
+if (!require(jsonlite)) install.packages("jsonlite")
+if (!require(dplyr)) install.packages("dplyr")
+if (!require(ggplot2)) install.packages("ggplot2")
+if (!require(sf)) install.packages("sf")
+
+library(httr)        # Para realizar solicitudes HTTP
+library(jsonlite)    # Para manejar JSON
+library(dplyr)       # Para manipulación de datos
+library(ggplot2)     # Para visualización
+library(sf)          # Para trabajar con datos espaciales
+
+# Paso 1: Conexión a la API
+url <- "https://www.datos.gov.co/resource/wemp-b8gd.json"
+response <- GET(url)
+
+if (status_code(response) == 200) {
+  data <- fromJSON(content(response, as = "text"))
+  #print("Datos descargados con éxito.")
+} else {
+  stop("Error al descargar los datos.")
+}
+
+# Paso 2: Procesamiento de datos
+# Convertir los datos a un marco de datos para su manipulación
+data <- as.data.frame(data)
+
+# Verificar columnas disponibles
+#print(names(data))
+
+# Adaptar según las columnas específicas del dataset
+data <- data %>% 
+  select(d_nombmuni, d_nomzon, d_hombres, d_mujeres) %>% 
+  rename(municipio = d_nombmuni, principio = d_nomzon, hombres = d_hombres, mujeres = d_mujeres) %>% 
+  mutate(hombres = as.numeric(hombres),
+         mujeres = as.numeric(mujeres),
+         poblacion = hombres + mujeres,
+         municipio = toupper(trimws(municipio))) %>% 
+  group_by(municipio, principio) %>% 
+  summarise(total_poblacion = sum(poblacion, na.rm = TRUE))
+
+# Paso 3: Leer datos espaciales (shapefile)
+shape_data <- st_read("MGN_ADM_MPIO_GRAFICO.shp", quiet = TRUE)
+
+# Verificar nombres de columnas en el shapefile
+#print(names(shape_data))
+
+# Mostrar las primeras filas del shapefile para inspeccionar los datos
+#head(shape_data)
+
+# Filtrar solo los municipios del departamento de Santander
+shape_data <- shape_data %>% 
+  filter(dpto_cnmbr == "SANTANDER") %>%  # Filtrar por departamento
+  mutate(mpio_cnmbr = toupper(trimws(mpio_cnmbr)))  # Normalizar nombres de municipios
+
+# Unir los datos del shapefile con los datos de población
+shape_data <- shape_data %>% 
+  left_join(data, by = c("mpio_cnmbr" = "municipio"))
+
+# Verificar si la unión se realizó correctamente
+if (!"total_poblacion" %in% names(shape_data)) {
+  stop("No se pudo unir correctamente los datos de población con los datos espaciales. Revisa los nombres de las columnas.")
+}
+
+# Paso 4: Crear el mapa de calor con nombres de los municipios
+ggplot(shape_data) +
+  geom_sf(aes(fill = total_poblacion), color = NA) +
+  scale_fill_viridis_c(option = "plasma", na.value = "grey") +  # Áreas sin datos en blanco
+  geom_sf_text(
+    data = shape_data %>% filter(!is.na(total_poblacion)),  # Solo municipios con datos de población
+    aes(label = mpio_cnmbr),
+    size = 3, color = "black", check_overlap = TRUE  # Tamaño y color del texto
+  ) +
+  labs(title = "Distribución de la población desplazada por municipios en Santander",
+       fill = "Población") +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
 ## Análisis de las instituciones 
 Enfocado en analizar las instituciones educativas y su relación con la población desplazada. 
 
 **¿A qué sector pertenecen las instituciones en donde estudian las personas desplazadas?**
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+
+# Preparación de los datos 
+datos_nomsec <- dataset %>%
+  count(d_nomsec) %>%
+  mutate(
+    porcentaje = round(n / sum(n) * 100, 1),  
+    renombre_nomsec = recode(d_nomsec, "O" = "Oficial", "P" = "Privado"),  
+    etiqueta = paste0(n, " (", porcentaje, "%)") 
+  )
+
+# Creación del diagrama de torta
+ggplot(datos_nomsec, aes(x = "", y = n, fill = renombre_nomsec)) +
+  geom_bar(stat = "identity", width = 1) +  
+  coord_polar("y") +                       
+  geom_text(aes(label = etiqueta),          
+            position = position_stack(vjust = 0.5), size = 4) + 
+  labs(title = "Distribución por sector de la institucion", fill = "Sector") +
+  theme_void() +                           
+  theme(
+    legend.position = "right",
+    plot.title = element_text(hjust = 0.5)) 
+
+```
 
 **¿Qué método educativo es más común entre los estudiantes desplazados?**
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+
+# Preparación de los datos 
+datos_metodo <- dataset %>%
+  count(metodo) %>%
+  mutate(
+    porcentaje = round(n / sum(n) * 100, 2),
+    etiqueta = paste0(n, " (", porcentaje, "%)")  
+  )
+
+# Creación del diagrama de torta
+ggplot(datos_metodo, aes(x = "", y = n, fill = metodo)) +
+  geom_bar(stat = "identity", width = 1) +  
+  coord_polar("y") +                       
+  geom_text(aes(label = etiqueta),          
+            position = position_stack(vjust = 0.5), size = 4) + 
+  labs(title = "Distribución por metodo", fill = "Metodo") +
+  theme_void() +                           
+  theme(
+    legend.position = "right",
+    plot.title = element_text(hjust = 0.5)) 
+
+```
 
 **¿Cuáles son los institutos con mayor número de estudiantes desplazados?**
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+
+# Agrupar por institución y contar el número de estudiantes en cada una
+conteo_inst <- dataset %>%
+  group_by(d_nombinst) %>%
+  summarise(total_estudiantes = n()) %>%  
+  arrange(desc(total_estudiantes))  # 
+
+# Filtrar las instituciones con más estudiantes desplazados
+est_x_inst <- head(conteo_inst, 10)
+
+# Creación del diagrama de barras para instituciones con mas estudiantes 
+ggplot(est_x_inst, aes(x = reorder(d_nombinst, -total_estudiantes), y = total_estudiantes)) +
+  geom_bar(stat = "identity", fill = "violet") + 
+  geom_text(aes(label = total_estudiantes), vjust = -0.5) +
+  labs(title = "Instituciones con más estudiantes desplazados",
+       x = "Institución", 
+       y = "Número de estudiantes desplazados") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
 
 **¿Qué instituciones han absorbido más sedes?** 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+
+# Contar cuántas sedes ha absorbido cada institución
+inst_sedes <- dataset %>%
+  group_by(d_nombinst) %>%
+  summarise(sedes_absorbidas = n_distinct(d_sede)) %>%
+  arrange(desc(sedes_absorbidas))
+
+# Ver las 10 instituciones con más sedes absorbidas
+inst_x_sedes <- head(inst_sedes, 10)
+
+ggplot(inst_x_sedes, aes(x = reorder(d_nombinst, -sedes_absorbidas), y = sedes_absorbidas)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  geom_text(aes(label = sedes_absorbidas), vjust = -0.5) +
+  labs(title = "Instituciones que más colegios pequeños han absorbido como sedes",
+       x = "Institución", 
+       y = "Número de sedes absorbidas") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
 
 
 ## Análisis relacional 

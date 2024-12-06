@@ -85,6 +85,6 @@ ggplot(inst_x_sedes, aes(x = reorder(d_nombinst, -sedes_absorbidas), y = sedes_a
   geom_text(aes(label = sedes_absorbidas), vjust = -0.5) +
   labs(title = "Instituciones que más colegios pequeños han absorbido como sedes",
        x = "Institución", 
-       y = "Número de Sedes Absorbidas") +
+       y = "Número de sedes absorbidas") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
