@@ -1,30 +1,16 @@
 # Instalar y cargar librerías necesarias
-if (!require(httr)) install.packages("httr")
-if (!require(jsonlite)) install.packages("jsonlite")
 if (!require(dplyr)) install.packages("dplyr")
 if (!require(ggplot2)) install.packages("ggplot2")
 if (!require(sf)) install.packages("sf")
 
-library(httr)        # Para realizar solicitudes HTTP
-library(jsonlite)    # Para manejar JSON
 library(dplyr)       # Para manipulación de datos
 library(ggplot2)     # Para visualización
 library(sf)          # Para trabajar con datos espaciales
 
-# Paso 1: Conexión a la API
-url <- "https://www.datos.gov.co/resource/wemp-b8gd.json"
-response <- GET(url)
 
-if (status_code(response) == 200) {
-  data <- fromJSON(content(response, as = "text"))
-  print("Datos descargados con éxito.")
-} else {
-  stop("Error al descargar los datos.")
-}
-
-# Paso 2: Procesamiento de datos
+# Paso 1: Procesamiento de datos
 # Convertir los datos a un marco de datos para su manipulación
-data <- as.data.frame(data)
+data <- as.data.frame(dataset)
 
 # Verificar columnas disponibles
 print(names(data))
@@ -40,7 +26,7 @@ data <- data %>%
   group_by(municipio, principio) %>% 
   summarise(total_poblacion = sum(poblacion, na.rm = TRUE))
 
-# Paso 3: Leer datos espaciales (shapefile)
+# Paso 2: Leer datos espaciales (shapefile)
 shape_data <- st_read("MGN_ADM_MPIO_GRAFICO.shp")
 
 # Verificar nombres de columnas en el shapefile
@@ -63,7 +49,7 @@ if (!"total_poblacion" %in% names(shape_data)) {
   stop("No se pudo unir correctamente los datos de población con los datos espaciales. Revisa los nombres de las columnas.")
 }
 
-# Paso 4: Crear el mapa de calor con nombres de los municipios
+# Paso 3: Crear el mapa de calor con nombres de los municipios
 ggplot(shape_data) +
   geom_sf(aes(fill = total_poblacion), color = NA) +
   scale_fill_viridis_c(option = "plasma", na.value = "grey") +  # Áreas sin datos en blanco
@@ -76,6 +62,3 @@ ggplot(shape_data) +
        fill = "Población") +
   theme_minimal() + 
   theme(plot.title = element_text(hjust = 0.5))
-
-
-
