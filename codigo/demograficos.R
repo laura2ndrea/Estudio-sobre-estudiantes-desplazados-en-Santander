@@ -1,7 +1,7 @@
 #######################     INSTALACIÓN DE PAQUETES     ######################
-install.packages("ggplot2")
-install.packages("dplyr")
-install.packages("RColorBrewer")
+if (!require(ggplot2)) install.packages("ggplot2")
+if (!require(dplyr)) install.packages("dplyr")
+if (!require(RColorBrewer)) install.packages("RColorBrewer")
 library(ggplot2)
 library(dplyr)
 library(RColorBrewer)
