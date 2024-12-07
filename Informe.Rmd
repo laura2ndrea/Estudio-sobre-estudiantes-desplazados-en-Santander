@@ -87,9 +87,11 @@ Para la realización de este proyecto, se utilizaron los siguientes paquetes:
 ## Preparación de los datos
 
 **Cargado del dataset**
+
 Para empezar, cargamos el dataset utilizando la función `read.csv()`, de esta forma pudimos importar los datos desde el archivo (CSV) para trabajar con el ellos. 
 
 **Exploración del dataset**
+
 Antes de empezar con la limpieza de los datos, hicimos una exploración inicial del dataset para entender su contenido y estructura: 
 
 1. Usamos `dim()` para verificar el número de filas y columnas y `str()` para explorar que tipo de datos tiene cada columna. 
@@ -103,6 +105,10 @@ Antes de empezar con la limpieza de los datos, hicimos una exploración inicial 
 5. Con `unique()` y `summary()` exploramos mas a detalles columnas de interés para nuestro estudio. 
 
 En base a esta exploración inicial podemos decir lo siguiente sobre el dataset: 
+
+- Tiene 18.062 filas (registros) y 22 columnas (variables)
+
+- De las 22 variables, 8 son cualitativas nominales 
 
 **Limpieza de los datos**
 
