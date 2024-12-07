@@ -714,15 +714,96 @@ ggplot(displacement_data, aes(x = motivo, y = grupo_etnico, size = total_poblaci
 
 ```
 
-En esta gráfica, se observa que la mayoría de los registros corresponden a personas que no pertenecen a ningún grupo étnico, estan aparecen en cada una de las categorías. En cuanto a los que sí pertenecen a un grupo étnico, los registros son menores, representados por esferas de menor tamaño. Al analizar por categoría, podemos notar que en "Delitos contra la libertad'" aparecen los grupos "Negritudes" y "Murui", en "Desaparición forzada" el grupo "Zenú", y en "Víctimas de minas" aparece el grupo "U'wa", que es el único grupo étnico registrado en este tipo de desplazamiento. En general, las categorías con más variedad de grupos étnicos son "Víctima", "En situación de desplazamiento" y "Desplazamiento forzado"."
+En esta gráfica, se observa que la mayoría de los registros corresponden a personas que no pertenecen a ningún grupo étnico, estan aparecen en cada una de las categorías. En cuanto a los que sí pertenecen a un grupo étnico, los registros son menores, representados por esferas de menor tamaño. Al analizar por categoría, podemos notar que en "Delitos contra la libertad'" aparecen los grupos "Negritudes" y "Murui", en "Desaparición forzada" el grupo "Zenú", y en "Víctimas de minas" aparece el grupo "U'wa", que es el único grupo étnico registrado en este tipo de desplazamiento. En general, las categorías con más variedad de grupos étnicos son "Víctima", "En situación de desplazamiento" y "Desplazamiento forzado".
 
 # Discusión
 
-Interpretación de los resultados, discutir si los resultados responden a la pregunta hecha inicialmente.
+---
+title: "Análisis de Estudiantes Desplazados en Santander"
+output: html_document
+---
+
+Para abordar la discusión sobre las características de los estudiantes desplazados en los municipios no certificados de Santander, vamos a presentar un análisis detallado por sectores y sub-preguntas relacionadas.
+
+**Distribución demográfica**
+
+**¿Cómo se distribuye la población por género?**
+
+Se analizó la información del diagrama de "Distribución por edad y género" y se concluyó que, en promedio, hay más estudiantes del género masculino en comparación con el femenino.
+
+**¿Cuál es la distribución de la población por rangos de edad?**
+
+El rango con mayor cantidad de estudiantes es de [11-15] años, seguido por los rangos [15-19] y [7-11]. 
+
+**¿Cómo se distribuye la población según la etnia?**
+
+En cuento a como se distribuye la población según la etnia, la mayoria no pertecene a ninguna etnia y aquellos que si pertecen a un, en su mayoría hacen parte del grupo negritudes y afrodescendientes.
+
+**¿Qué proporción de la población sufre alguna discapacidad?**
+
+Hay una proporción muy pequeña que sufre de alguna discapacidad, siendo apenas 2.4 % de todos los registros. 
+
+**¿Cuáles son los tipos de desplazamiento más comunes?**
+
+Según el dataset el tipo de desplazamiento más común es "Victima", seguido de "En situación de desplazamiento", lamentablemente no se da mas información respecto al motivo del desplazamiento, por lo que no fue posible determinar cual fue la causa especifica por la que estas personas tuvieron que desplazarse. 
+
+**Distribución educativa**
+
+**¿A qué sector pertenecen las instituciones en donde estudian las personas desplazadas?**
+
+La mayoría de las instituciones pertecenen al sector oficial con un porcentaje del 92.2 % frente al 7.8 % de las que pertencen al sector privado. 
+
+**¿Qué método educativo es más común entre los estudiantes desplazados?**
+
+El método educativo tradicional es el más común, con casi un 70% de estudiantes, superando ampliamente a otros métodos como la escuela nueva, que tiene un 14.32% de estudiantes.
+
+**¿Cuáles son los institutos con mayor número de estudiantes desplazados?**
+
+El Instituto Integrado de la Esperanza, es el instituto con mayor cantidad de estudiantes desplazados, para ser exactos 1,211 , casi el doble comparado con las tres siguientes instituciones, que tienen un promedio de 674 estudiantes cada una.
+
+**Distribución Geográfica**
+
+**¿Cómo está distribuida la población entre los diferentes municipios y provincias?**
+
+Los municipios con mayor número de población desplazada son Sabana de Torres, Puerto Wilches y Cimitarra, otros municipios presentan cifras más bajas.
+
+**¿Cuántos institutos se encuentran en zonas rurales y cuántos en zonas urbanas?**
+
+El 56.9% de las instituciones están en zonas urbanas y el 43.1% en zonas rurales.
+
+**Distribución Relacional**
+
+**¿Existe relación entre método educativo y características demográficas (género, etnia y edad)?**
+
+Sí, se observa una relación entre el método educativo y las características demográficas. La mayoría de los estudiantes optan por el método de "Educación Tradicional", con una participación mayoritaria de hombres en métodos como "Escuela Nueva", "Post Primaria" y "Programa para Jóvenes en Extraedad y Adultos". En métodos como "Media Rural", "SAT", "Caminar en Secundaria", "Tejiendo Saberes" y "UNAD", la representación de género es más equilibrada. En cuanto a la etnia, más del 90% de los estudiantes no pertenecen a ningún grupo étnico, aunque los "Afrodescendientes" destacan en métodos como "Educación Tradicional", "Escuela Nueva" y "Post Primaria". Respecto a la edad, los estudiantes en métodos como "Escuela Nueva" tienen un promedio de 9 años, mientras que los métodos de "Tejiendo Saberes" y "UNAD" son representados por estudiantes mayores, con edades de 53 y 40 años, respectivamente.
+
+**¿Cómo se relacionan los motivos de desplazamiento con el grupo étnico de las personas?**
+
+Los estudiantes que no pertenecen a un grupo étnico constituyen la mayoría de desplazados. Para los casos que pertenecen a un grupo étnico, los grupos "Negritudes y Murui" tiene algunos registros en "Delitos contra la libertad" y el grupo "Zenú" en "Desaparición forzada". Sin embargo, es difícil establecer una relación clara entre el motivo de desplazamiento y la étnica debido a dos factores: primero, la poca cantidad de registros de personas que pertenecen a etnias y, segundo, la poca claridad en las categorías con la mayoría de registros en los tipos de desplazamiento.
+
+**Conclusión**
+
+Finalmente, se concluyó que la pregunta de investigación se resolvió eficazmente al dividirla en secciones más manejables con sub-preguntas específicas, proporcionando una visión integral de las características de los estudiantes desplazados en Santander.
+
 
 # Conclusiones
 
-Resumen del problema, resumen de como se abordo el problema (metodologia), ideas interesantes en el analisis, implicaciones para el consumidor, limitaciones de analisis y como se podria mejorar.
+Este estudio se centró en estudiar las características de los estudiantes desplazados en los municipios no certificados de Santander. A través de un análisis de datos, se exploraron aspectos como género, etnia, edad, métodos educativos y distribución geográfica. Los resultados mostraron una predominancia del método educativo tradicional y una mayoría de estudiantes sin grupo étnico definido.
+
+Aunque el estudio proporciona información valiosa, presenta ciertas limitaciones. En particular, el conjunto de datos incluye variables, como los tipos de desplazamiento, que no están completamente claras. Además, falta información sobre los métodos de recolección de datos, lo que ayudaría a mejorar la claridad y precisión de los mismos.
+
+Este estudio nos ha ayudado a acercarnos y a comprender mejor una de las problemáticas más grandes y desafiantes que enfrenta el país, brindandonos una visión aún más completa de esta situación. 
 
 # Referencias
+
 [1] Gómez, L. (2024, June 23). Aumentaron los desplazamientos forzados en Colombia: Más de 13.500 personas han sido víctimas en 2024. Infobae.
+
+(Para la realización del informe y el estudio)
+
+- Garcia M & Pérez R (2024). Estudio de intentos de suicidio en Santander. RPubs. https://rpubs.com/Richard_19/informe
+
+- ENR Dados. (2024). Gráficas con ggplot II. ENR Dados. https://enrdados.netlify.app/post/graficas-con-ggplot-ii/?msclkid=6a66b35ad14111ecb326b6a5fcaec999
+
+- ENR Dados. (2024). Gráficas con ggplot. ENR Dados. https://enrdados.netlify.app/post/graficas-con-ggplot/?msclkid=5a737af9c75211ec8faccc9d9853b782
+
+- Boca, T. (2016). Introducción al uso de Rmarkdown (RStudio Pubs). https://rstudio-pubs-static.s3.amazonaws.com/535448_04e35a88e9f248229c8d93f084a17991.html
