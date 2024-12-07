@@ -478,7 +478,7 @@ ggplot(shape_data) +
 
 ```
 
-CORREGIR 
+El mapa muestra que la mayoría de estudiantes desplazados en Santander se encuentran en los municipios Sabana de Torres, Puerto Wilches y Cimitarra, los cuales presentan colores anaranjados y amarillos. En contraste, municipios como Betulia, Barichara, Zapatoca, Onzaga, San Joaquín y Capitanejo tienen cifras más bajas, reflejadas en tonos azules. 
 
 
 ## Análisis de las instituciones 
@@ -621,7 +621,7 @@ ggplot(genero_data, aes(x = metodo, y = cantidad, color = genero)) +
 
 ```
 
-En esta gráfica se puede observar que la mayoría de los estudiantes emplean el método de estudio tradicional. También se muestra que en los métodos de educación tradicional, escuela nueva y post primaria, la mayoría de los estudiantes son hombres. En los métodos de media rural y SAT, las cifras son similares para ambos géneros, con los puntos representativos superpuestos en la misma posición. Sin embargo, en el método "Programa para Jóvenes en Extraedad y Adultos", se observa una mayor cantidad de mujeres que de hombres.
+En esta gráfica se observa que la mayoría de los estudiantes utilizan el método de estudio tradicional. Además, en métodos como educación tradicional, escuela nueva, post primaria y programa para jóvenes en extraedad y adultos, la mayoría son hombres. En cambio, en métodos como media rural, SAT, caminar en secundaria, tejiendo saberes y UNAD, los géneros están representados de manera similar, con los puntos de ambos superpuestos.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=8}
 
@@ -659,7 +659,9 @@ tabla_etnico %>%
 
 ```
 
-En este gráfico podemos notar que, para todos los métodos, la mayoría de los estudiantes no pertenecen a ningún grupo étnico, lo cual tiene sentido, ya que, como vimos anteriormente, más del 90% de los registros corresponden a personas que no se identifican con ningún grupo étnico. También podemos observar que, por ejemplo, las personas del grupo étnico U'WA eligen el método de estudio "Escuela Nueva", al igual que los del grupo Zenú. En el "Programa para Jóvenes en Extraedad y Adultos", se destaca la presencia de los grupos étnicos Ebera Chami, y la etnia Negritudes aparece en la "Educación Tradicional" y la "Media Rural". Además, también se observa la presencia del grupo Piapoco en la "Educación Tradicional".
+Debido a la dificultad para leer los datos en la gráfica, gracias a la gran cantidad de etnias registradas en el dataset, se decidió crear una tabla para facilitar la visualización de la información. A partir de la gráfica y la tabla, podemos notar que la mayoría de los estudiantes no pertenecen a ningún grupo étnico, lo cual es coherente con el hecho de que más del 90% de los registros corresponden a estudiantes que no hacen parte de ningun grupo étnico. Además, grupos como los "Afrodescendientes" tienen una participación destacada en métodos como "Educación Tradicional", "Escuela Nueva" y "Post Primaria", mientras que "Negritudes" y "Zenú" también están representados, aunque en menor proporción.
+
+
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -681,7 +683,7 @@ ggplot(edad_data, aes(x = metodo, y = promedio_edad)) +
 
 ```
 
-En este gráfico, podemos observar las edades promedio de los estudiantes según el método de estudio. En "Educación Tradicional", la edad promedio es de aproximadamente 13 años, mientras que en "Escuela Nueva" es de aproximadamente 9 años. En "Media Rural", la edad promedio es de alrededor de 17 años, y en "Postprimaria", es de 15 años. En el "Programa para Jóvenes en Extraedad y Adultos", la edad promedio es de 18 años, y en el SAT es de 24 años.
+En este gráfico, se muestran las edades promedio de los estudiantes según el método de estudio. En "Caminar en Secundaria" y "Media Rural", la edad es de 16-17 años. En "Educación Tradicional# es de 13 años, mientras que en "Escuela Nueva" es de 9 años. En "Postprimaria" la edad es de 14 años y en el "Programa para Jóvenes en Extraedad y Adultos" es de 19 años. En el SAT, la edad es de 26 años, en "Tejiendo Saberes" de 53 años y en "UNAD" de 40 años.
 
 **¿Cómo se relacionan los motivos de desplazamiento con el grupo étnico de los personas?**
 
@@ -712,7 +714,7 @@ ggplot(displacement_data, aes(x = motivo, y = grupo_etnico, size = total_poblaci
 
 ```
 
-En esta gráfica, se observa que la mayoría de los registros corresponden a personas que no pertenecen a ningún grupo étnico, lo que tiene sentido, ya que más del 90% de los datos corresponden a este grupo. En cuanto a los que si pertenecen a un grupo etnico, los registros son menores, representado con esferas de mucho menor tamaño. El grupo afrodescendiente aparece en "Desaparición Forzada", "Desplazamiento Forzado" y "En situación de desplazamiento". El grupo étnico Ébera Chami está presente en "Desplazamiento forzado" y "En situación de desplazamiento", al igual que las Negritudes, que aparecen en estas mismas dos categorías. El grupo U'wa aparece en la categoría "Víctima de minas", y los Zenú solo en "Situación de desplazamiento".
+En esta gráfica, se observa que la mayoría de los registros corresponden a personas que no pertenecen a ningún grupo étnico, estan aparecen en cada una de las categorías. En cuanto a los que sí pertenecen a un grupo étnico, los registros son menores, representados por esferas de menor tamaño. Al analizar por categoría, podemos notar que en "Delitos contra la libertad'" aparecen los grupos "Negritudes" y "Murui", en "Desaparición forzada" el grupo "Zenú", y en "Víctimas de minas" aparece el grupo "U'wa", que es el único grupo étnico registrado en este tipo de desplazamiento. En general, las categorías con más variedad de grupos étnicos son "Víctima", "En situación de desplazamiento" y "Desplazamiento forzado"."
 
 # Discusión
 
