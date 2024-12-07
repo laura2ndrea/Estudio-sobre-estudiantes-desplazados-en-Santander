@@ -54,7 +54,7 @@ unique(dataset$d_grado)
 identical(dataset$edad, dataset$d_edad)
 
 dataset <- dataset %>%
-  select(-edad, -d_nomjor, -d_hombres, -d_mujeres, -sector)
+  select(-edad, -d_nomjor, -sector)
 
 # Conversión de la columna dane_ant a 'character'
 dataset$dane_ant <- as.character(dataset$dane_ant)
