@@ -1,6 +1,6 @@
 ###################     INSTALACIÓN DE PAQUETES     ##########################
-install.packages("skimr")
-install.packages("dplyr")
+if (!require(dplyr)) install.packages("dplyr")
+if (!require(skimr)) install.packages("skimr")
 library(dplyr)
 library(skimr)
 
@@ -81,3 +81,4 @@ unique(dataset$discapa)
 # Verificación del dataset luego de la limpieza
 dim(dataset)
 str(dataset)
+
