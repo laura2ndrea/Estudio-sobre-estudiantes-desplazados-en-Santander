@@ -89,18 +89,14 @@ Para la realización de este proyecto, se utilizaron los siguientes paquetes:
 
 -  `RColorBrewer`: este paquete ofrece paletas de colores predefinidas, con el pudimos mejorar la estética de nuestros gráficos y hacerlos visualmente mas atractivos. 
 
--  `httr`: utilizada para hacer las solicitudes a diferentes API que nos proporcionaron datos relevantes para hacer algunos de los diagramas. 
-
--  `jsonlite:`: para manejar los datos obtenidos en formato JSON y convertirlos en un formato útil para hacer las visualizaciones.
-
 -  `sf`: para trabajar con datos geoespaciales, como coordenadas y límites geográficos, utilizada para realizar el mapa de calor. 
+
+-  `tidyr`: este paquete se utilizo para transformar y manipular datos de manera mas sencilla, facilitando así tareas como agrupar, resumir y organizar información relevante para realizar las gráficas. 
 
 ## Preparación de los datos
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
-if (!require(httr)) install.packages("httr")
-if (!require(jsonlite)) install.packages("jsonlite")
 if (!require(dplyr)) install.packages("dplyr")
 if (!require(ggplot2)) install.packages("ggplot2")
 if (!require(sf)) install.packages("sf")
@@ -114,8 +110,6 @@ if (!require(tidyr)) install.packages("tidyr")
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
-library(httr)
-library(jsonlite)
 library(dplyr)
 library(ggplot2)
 library(sf)
@@ -153,13 +147,13 @@ En base a esta exploración inicial podemos decir lo siguiente sobre el dataset:
 
 - El dataset no tiene valores nulos. 
 
-- Hay columnas duplicadas: edad y d_edad contienen los mismos datos, al igual que d_genero con las columnas d_hombres y d_mujeres. 
+- Hay columnas duplicadas: edad y d_edad contienen los mismos datos. 
 
 **Limpieza de los datos**
 
 Tras la exploración, se realizo lo siguiente: 
 
-1. Se eliminaron las columnas edad, d_hombres y d_mujeres porque contenían información duplicada. 
+1. Se elimino la columna edad porque contenia información duplicada. 
 
 2. Además se eliminaron las columnas d_nomjor y sector, ya que no eran relevantes para el estudio que queriamos hacer. 
 
@@ -169,14 +163,14 @@ Tras la exploración, se realizo lo siguiente:
 
 5. En la columna discapa, se agruparon y renombraron categorías relacionadas para reducir redundancias y unificar términos. 
 
-Posterior a la limpieza de los datos, el dataset se mantuvo con la misma cantidad de registros (18.062) y con 17 columnas. Y quedó de la siguiente manera: 
+Posterior a la limpieza de los datos, el dataset se mantuvo con la misma cantidad de registros (18.062) y con 19 columnas. Y quedó de la siguiente manera: 
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
 dataset <- read.csv("Estudiantes_en_situacion_de_desplazamiento_Santander.csv")
 
 dataset <- dataset %>%
-  select(-edad, -d_nomjor, -d_hombres, -d_mujeres, -sector)
+  select(-edad, -d_nomjor, -sector)
 
 dataset$dane_ant <- as.character(dataset$dane_ant)
 
@@ -221,30 +215,35 @@ En este análisis se exploraron diversas características relacionadas con los e
 
 Este análisis estuvo centrado en ver cómo los estudiantes se distribuyen de acuerdo a su municipio y tipo de zona.
 
-- **Distribucion de la población por municipio**: para hacer este gráfico, se obtuvo la información sobre la población desplazada desde una base de datos en línea (API), y se organizó en una tabla (data frame). Luego, se seleccionaron los datos más relevantes, se corrigieron los nombres y se calcularon valores como la población total por municipio. A continuación, se incorporó la información geográfica, agregando la ubicación de cada municipio. Finalmente, se creó un mapa que mostró la distribución de la población desplazada en Santander, representando los municipios con más desplazados con colores más intensos.
+- **Distribucion de la población por municipio**: esta distribución se creó procesando datos de la población y combinándolos con un archivo geográfico (shapefile) que contiene los límites municipales del departamente de Santander. Se calcularon los totales de población por municipio y se unieron con las regiones geográficas mediante un campo común. La visualización se generó con ggplot2, utilizando colores para representar la cantidad de población desplazada. 
 
 **Análisis de las instituciones**
 
 El análisis de las instituciones estuvo orientado a explorar aspectos como el número de estudiantes por institución y la clasificación de estas según diferentes criterios.
 
-- **Distribución por sector**: 
+- **Distribución por sector**: para crear este diagrama, se contó el número de instituciones según su sector, calculando los porcentajes. Luego, con ggplot2, se generó el gráfico de torta. 
 
 - **Distribución por zona**: para realizar este diagrama se obtuvieron los datos sobre las instituciones, enfocándose en si eran rurales o urbanas. Luego se organizó la información seleccionando los datos relevantes y se contó cuántas instituciones pertenecían a cada categoría.A partir de esto, se creó un gráfico de torta. 
 
-- **Distribución por método educativo**: 
+- **Distribución por método educativo**: para este diagrama, se contabilizó la cantidad de registros por cada método educativo en el conjunto de datos y se calculó el porcentaje de participación de cada uno. Con ggplot2, se generó un gráfico de barras apiladas, donde el eje x representa los métodos, y el eje y, los porcentajes. 
 
-- **Instituciones con mayor cantidad de estudiantes**: 
-
-- **Instituciones que han absorbido mas sedes**: 
+- **Instituciones con mayor cantidad de estudiantes**: este gráfico se creó seleccionando las 10 instituciones con mayor cantidad de estudiantes desplazados, utilizando un resumen agrupado por institución para calcular el total de estudiantes en cada una. Luego, se ordenaron los resultados de mayor a menor y se construyó un gráfico de barras con ggplot2, en el que las instituciones están en el eje x y el número de estudiantes en el eje y. 
 
 **Análisis relacional**
 
 
 En este análisis quisimos identificar patrones y conexiones significativas entre diferentes variables.
 
-- **Relación entre el método educativo entre caracteristicas demográficas**: para analizar estas relaciones, se obtuvieron datos de la API proporcionada por el sitio oficial donde se aloja el dataset, transformándolos en un formato adecuado para el análisis. Posteriormente, se limpiaron y organizaron los datos, calculando aspectos clave como la cantidad de hombres y mujeres, la población total por grupo étnico y la edad promedio de los estudiantes según el método educativo. Estas relaciones se presentaron mediante diagramas de dispersión. 
+- **Relación entre el método educativo entre caracteristicas demográficas**:
 
-- **Relación entre los motivos de desplazamiento con el grupo étnico de las personas**: para crear este gráfico, al igual que el anterior, los datos se obtuvieron a través de la API, luego se limpiaron y prepararon para realizar la gráfica correspondiente. Se calculó la población desplazada según el motivo y el grupo étnico. Finalmente, se generó un gráfico de dispersión en el que el tamaño de los puntos muestra la cantidad de personas desplazadas y los colores distinguen los grupos étnicos. 
+  - **Relación con género**: se procesaron los datos para calcular el total de hombres y mujeres por método educativo y se reorganizaron en un formato más visual mediante pivot_longer. Luego, con ggplot2, se creó un gráfico de dispersión donde el eje x representa los métodos, el eje y la cantidad de estudiantes, y los puntos se colorearon por género.
+  
+  - **Relación con el grupo étnico**: los datos fueron procesados para calcular la población total de hombres y mujeres por cada método educativo y grupo étnico. Luego, se utilizó ggplot2 para crear un gráfico de dispersión, donde el eje x representa los métodos educativos, el eje y la población total, y los puntos se colorearon según el grupo étnico. 
+  
+  - **Relación con la edad**: se generó a partir de los datos de edad por método educativo. Primero, se seleccionaron las columnas correspondientes y se calculó el promedio de edad por método educativo, usando la función group_by para agrupar los datos y summarise para obtener el promedio. Luego, se creó un gráfico de puntos con ggplot, donde se representan los métodos educativos en el eje X y el promedio de edad en el eje Y.
+  
+
+- **Relación entre los motivos de desplazamiento con el grupo étnico de las personas**: este gráfico muestra la relación entre el motivo de desplazamiento y el grupo étnico. Primero, se seleccionaron las columnas relevantes del conjunto de datos, se limpiaron y transformaron los valores para que estuvieran en formato adecuado. Luego, se agruparon los datos por motivo y grupo étnico, y se calculó la población total de hombres y mujeres en cada grupo. Finalmente, se creó un gráfico de dispersión en el que el tamaño de los puntos representa la población total y el color corresponde al grupo étnico.
 
 # Resultados
 
@@ -416,7 +415,7 @@ En el gráfico siguiente, podemos observar que la mayoría de las 442 personas t
 
 **¿Cuáles son los tipos de desplazamiento más comunes?**
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=8}
 ggplot(dataset, aes(y = d_tipo)) +
   geom_bar(fill = "red", color = "white") +  
   geom_text(stat = "count", aes(label = ..count..), hjust = -0.2, size = 3) +  
@@ -436,18 +435,9 @@ Enfocado en analizar cómo se distribuye la población.
 
 **¿Cómo está distribuida la población entre los diferentes municipios?**
 
-```{r echo=FALSE, warning=FALSE, message=FALSE}
-url <- "https://www.datos.gov.co/resource/wemp-b8gd.json"
-response <- GET(url)
+```{r echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=8}
 
-if (status_code(response) == 200) {
-  data <- fromJSON(content(response, as = "text"))
-  #print("Datos descargados con éxito.")
-} else {
-  stop("Error al descargar los datos.")
-}
-
-data <- as.data.frame(data)
+data <- as.data.frame(dataset)
 
 data <- data %>% 
   select(d_nombmuni, d_nomzon, d_hombres, d_mujeres) %>% 
@@ -488,9 +478,7 @@ ggplot(shape_data) +
 
 ```
 
-Al analizar el mapa de la población desplazada en Santander, podemos observar una marcada desigualdad en su distribución. Cimitarra destaca como el municipio con el mayor número de estudiantes desplazados, lo cual se evidencia en su color amarillo intenso. Por otro lado, municipios como Betulia y Barichara presentan las cifras más bajas, reflejadas en tonos azules, lo que indica una menor incidencia del desplazamiento en estas zonas.
-
-Es importante resaltar que la concentración de municipios con alta población desplazada se observa principalmente en la zona sur del departamento. Los tonos azules y morados que predominan en esta región del mapa sin mencionar Cimitarra con su fuerte tono amarillo nos indican que un gran número de localidades se encuentran afectadas por esta problemática.
+CORREGIR 
 
 
 ## Análisis de las instituciones 
@@ -520,6 +508,8 @@ ggplot(datos_nomsec, aes(x = "", y = n, fill = renombre_nomsec)) +
     plot.title = element_text(hjust = 0.5)) 
 
 ```
+
+Se observa que, en la distribución de los porcentajes de las instituciones por sector, el 92.2% pertenecen al sector oficial, mientras que el 7.8% al sector privado. Esto muestra que la gran mayoria de instituciones hacen parte del sector oficial. 
 
 **¿A qué zona pertenecen las instituciones en donde estudian las personas desplazadas?**
 
@@ -571,6 +561,8 @@ ggplot(datos_metodo, aes(x = metodo, y = porcentaje, fill = metodo)) +
         plot.title = element_text(hjust = 0.5)) 
 ```
 
+El método educativo más común entre los estudiantes desplazados es la educación tradicional, con un 69.1% de los estudiantes utilizando este enfoque. Este porcentaje es significativamente mayor en comparación con el segundo método más común, que representa solo el 14.32%. Esto muestra que la educación tradicional es la opción mas utilizada por los estudiantes desplazados. 
+
 **¿Cuáles son los institutos con mayor número de estudiantes desplazados?**
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -595,6 +587,8 @@ ggplot(est_x_inst, aes(x = reorder(d_nombinst, total_estudiantes), y = total_est
         legend.title = element_blank())  
 ```
 
+En la gráfica se muestran las 10 instituciones con mayor número de estudiantes desplazados. El colegio con más estudiantes es el Colegio Integrado Madre de la Esperanza, con 1211 estudiantes, casi el doble que los tres siguientes, que tienen 678, 675 y 673 estudiantes desplazados matriculados, respectivamente.
+
 ## Análisis relacional 
 Enfocado en explorar correlaciones o patrones entre las variables del dataset. 
 
@@ -602,18 +596,7 @@ Enfocado en explorar correlaciones o patrones entre las variables del dataset.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
-url <- "https://www.datos.gov.co/resource/wemp-b8gd.json"
-response <- GET(url)
-
-if (status_code(response) == 200) {
-  data <- fromJSON(content(response, as = "text"))
-  #print("Datos descargados con éxito.")
-} else {
-  stop("Error al descargar los datos.")
-}
-
-
-genero_data <- data %>%
+genero_data <- dataset %>%
   select(metodo, d_hombres, d_mujeres) %>%
   rename(metodo = metodo, hombres = d_hombres, mujeres = d_mujeres) %>%
   mutate(hombres = as.numeric(hombres),
@@ -627,6 +610,7 @@ genero_data <- data %>%
 
 ggplot(genero_data, aes(x = metodo, y = cantidad, color = genero)) +
   geom_point(size = 5, alpha = 0.7) +
+  scale_y_continuous(limits = c(0, max(genero_data$cantidad))) +
   labs(title = "Relación entre método educativo y sexo",
        x = "Método educativo",
        y = "Cantidad",
@@ -639,9 +623,9 @@ ggplot(genero_data, aes(x = metodo, y = cantidad, color = genero)) +
 
 En esta gráfica se puede observar que la mayoría de los estudiantes emplean el método de estudio tradicional. También se muestra que en los métodos de educación tradicional, escuela nueva y post primaria, la mayoría de los estudiantes son hombres. En los métodos de media rural y SAT, las cifras son similares para ambos géneros, con los puntos representativos superpuestos en la misma posición. Sin embargo, en el método "Programa para Jóvenes en Extraedad y Adultos", se observa una mayor cantidad de mujeres que de hombres.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=8}
 
-etnico_data <- data %>%
+etnico_data <- dataset %>%
   select(metodo, etnia, d_hombres, d_mujeres) %>%
   rename(metodo = metodo, grupo_etnico = etnia, hombres = d_hombres, mujeres = d_mujeres) %>%
   mutate(hombres = as.numeric(hombres),
@@ -662,11 +646,24 @@ ggplot(etnico_data, aes(x = metodo, y = total_poblacion, color = grupo_etnico)) 
 
 ```
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+tabla_etnico <- etnico_data %>%
+  pivot_wider(names_from = metodo, values_from = total_poblacion, values_fill = 0)
+
+tabla_etnico %>%
+  kbl(caption = "Distribución de población por grupo étnico y método educativo",
+      col.names = c("GRUPO ÉTNICO", unique(etnico_data$metodo)),
+      align = "c") %>%
+  kable_styling(full_width = TRUE, bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+
 En este gráfico podemos notar que, para todos los métodos, la mayoría de los estudiantes no pertenecen a ningún grupo étnico, lo cual tiene sentido, ya que, como vimos anteriormente, más del 90% de los registros corresponden a personas que no se identifican con ningún grupo étnico. También podemos observar que, por ejemplo, las personas del grupo étnico U'WA eligen el método de estudio "Escuela Nueva", al igual que los del grupo Zenú. En el "Programa para Jóvenes en Extraedad y Adultos", se destaca la presencia de los grupos étnicos Ebera Chami, y la etnia Negritudes aparece en la "Educación Tradicional" y la "Media Rural". Además, también se observa la presencia del grupo Piapoco en la "Educación Tradicional".
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
-edad_data <- data %>%
+edad_data <- dataset %>%
   select(metodo, d_edad) %>%  
   rename(metodo = metodo, edad = d_edad) %>%
   mutate(edad = as.numeric(edad)) %>%
@@ -688,19 +685,9 @@ En este gráfico, podemos observar las edades promedio de los estudiantes según
 
 **¿Cómo se relacionan los motivos de desplazamiento con el grupo étnico de los personas?**
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=8}
 
-url <- "https://www.datos.gov.co/resource/wemp-b8gd.json"
-response <- GET(url)
-
-if (status_code(response) == 200) {
-  data <- fromJSON(content(response, as = "text"))
-  #print("Datos descargados con éxito.")
-} else {
-  stop("Error al descargar los datos.")
-}
-
-data <- as.data.frame(data)  
+data <- as.data.frame(dataset)  
 
 displacement_data <- data %>%
   select(d_tipo, etnia, d_hombres, d_mujeres) %>%
@@ -726,8 +713,6 @@ ggplot(displacement_data, aes(x = motivo, y = grupo_etnico, size = total_poblaci
 ```
 
 En esta gráfica, se observa que la mayoría de los registros corresponden a personas que no pertenecen a ningún grupo étnico, lo que tiene sentido, ya que más del 90% de los datos corresponden a este grupo. En cuanto a los que si pertenecen a un grupo etnico, los registros son menores, representado con esferas de mucho menor tamaño. El grupo afrodescendiente aparece en "Desaparición Forzada", "Desplazamiento Forzado" y "En situación de desplazamiento". El grupo étnico Ébera Chami está presente en "Desplazamiento forzado" y "En situación de desplazamiento", al igual que las Negritudes, que aparecen en estas mismas dos categorías. El grupo U'wa aparece en la categoría "Víctima de minas", y los Zenú solo en "Situación de desplazamiento".
-
-
 
 # Discusión
 
