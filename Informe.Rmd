@@ -30,7 +30,12 @@ header-includes:
 
 # Introducción
 
-Planteamiento del problema, explicación de como se planea abordar el problema (datos y metodología), enfoque actual / técnica analitica, propuesta de como se abordara este problema y como el análisis ayudará al consumidor de este.
+El desplazamiento forzado es uno de los problemas más graves y persistentes que enfrenta Colombia. La violencia generada por los conflictos armados, el accionar de grupos ilegales y el deterioro de la seguridad en diversas regiones del país han ocasionado un desplazamiento masivo de millones de colombianos. Y este problema no ha hecho mas que empeorar, de hecho según La Defensoría del Pueblo se reportó un incremento significativo, reflejando un alarmante deterioro en la seguridad, con más de 13.500 personas desplazadas solo en los primeros cinco meses de este año (2024) [1]. 
+
+Aunque Santander no es uno de los departamentos con la mayor cantidad de casos de desplazamiento en Colombia, el problema sigue siendo una realidad en esta región. Entre las personas desplazadas, hay estudiantes que se ven directamente afectados por esta situación. Con este estudio, buscamos comprender mejor como son estos estudiantes. De aquí surge nuestra pregunta de investigación: **¿Cuáles son las características de los estudiantes en situación de desplazamiento en los municipios no certificados de Santander?**
+
+Para abordar este problema, utilizaremos un dataset proporcionado por la Secretaría de Educación de Santander, que contiene información sobre los estudiantes desplazados matriculados en instituciones educativas de los 82 municipios no certificados del departamento. Este será nuestra herramienta principal para realizar un análisis detallado de la población estudiantil desplazada en la región. A medida que avancemos en el análisis, responderemos preguntas adicionales, tales como: ¿cómo se distribuyen estas poblaciones por género, edad y etnia?, ¿qué tipos de desplazamiento son los más comunes? y ¿cómo se distribuyen los estudiantes según los municipios?
+
 
 # Metodología
 El dataset utilizado para la realización de este estudio contiene información acerca de estudiantes en sitación de desplazamiento matriculados en instituciones educativas de los 82 municipios no certificados del departamento de Santander. Los datos fueron recopilados y actualizados por la **Secretaría de Educación de Santander**. 
@@ -84,11 +89,45 @@ Para la realización de este proyecto, se utilizaron los siguientes paquetes:
 
 -  `RColorBrewer`: este paquete ofrece paletas de colores predefinidas, con el pudimos mejorar la estética de nuestros gráficos y hacerlos visualmente mas atractivos. 
 
+-  `httr`: utilizada para hacer las solicitudes a diferentes API que nos proporcionaron datos relevantes para hacer algunos de los diagramas. 
+
+-  `jsonlite:`: para manejar los datos obtenidos en formato JSON y convertirlos en un formato útil para hacer las visualizaciones.
+
+-  `sf`: para trabajar con datos geoespaciales, como coordenadas y límites geográficos, utilizada para realizar el mapa de calor. 
+
 ## Preparación de los datos
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+if (!require(httr)) install.packages("httr")
+if (!require(jsonlite)) install.packages("jsonlite")
+if (!require(dplyr)) install.packages("dplyr")
+if (!require(ggplot2)) install.packages("ggplot2")
+if (!require(sf)) install.packages("sf")
+if (!require(skimr)) install.packages("skimr")
+if (!require(RColorBrewer)) install.packages("RColorBrewer")
+if (!require(kableExtra)) install.packages("kableExtra")
+if (!require(DT)) install.packages("DT")
+
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(skimr)
+library(RColorBrewer)
+library(kableExtra)
+library(DT)
+
+```
 
 **Cargado del dataset**
 
-Para empezar, cargamos el dataset utilizando la función `read.csv()`, de esta forma pudimos importar los datos desde el archivo (CSV) para trabajar con el ellos. 
+Para empezar, cargamos el dataset utilizando la función `read.csv()`, de esta forma pudimos importar los datos desde el archivo (CSV) para trabajar con ellos. 
 
 **Exploración del dataset**
 
@@ -102,23 +141,36 @@ Antes de empezar con la limpieza de los datos, hicimos una exploración inicial 
 
 4. También utilizamos `sum(is.na(dataset))` para identificar si habian valores faltantes y cuantos eran. 
 
-5. Con `unique()` y `summary()` exploramos mas a detalles columnas de interés para nuestro estudio. 
+5. Con `unique()` y `summary()` exploramos más a detalle columnas de interés para nuestro estudio. 
 
 En base a esta exploración inicial podemos decir lo siguiente sobre el dataset: 
 
 - Tiene 18.062 filas (registros) y 22 columnas (variables)
 
-- De las 22 variables, 8 son cualitativas nominales 
+- De las 22 variables, 18 son cualitativas nominales, 3 cuantitativas discretas y 1 cualitativa ordinal.
+
+- El dataset no tiene valores nulos. 
+
+- Hay columnas duplicadas: edad y d_edad contienen los mismos datos, al igual que d_genero con las columnas d_hombres y d_mujeres. 
 
 **Limpieza de los datos**
 
-## Análisis exploratorio de los datos
+Tras la exploración, se realizo lo siguiente: 
 
-# Resultados
+1. Se eliminaron las columnas edad, d_hombres y d_mujeres porque contenían información duplicada. 
+
+2. Además se eliminaron las columnas d_nomjor y sector, ya que no eran relevantes para el estudio que queriamos hacer. 
+
+3. La columna dane_ant fue convertida de tipo entero a carácter. 
+
+4. Las variables categóricas discapa y d_tipo fueron convertidas a factores para facilitar el análisis. 
+
+5. En la columna discapa, se agruparon y renombraron categorías relacionadas para reducir redundancias y unificar términos. 
+
+Posterior a la limpieza de los datos, el dataset se mantuvo con la misma cantidad de registros (18.062) y con 17 columnas. Y quedó de la siguiente manera: 
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
-library(dplyr)
-library(skimr)
+
 dataset <- read.csv("Estudiantes_en_situacion_de_desplazamiento_Santander.csv")
 
 dataset <- dataset %>%
@@ -141,18 +193,67 @@ dataset <- dataset %>%
                           "DISCAPACIDAD AUDITIVA - USUARIO DE LENGUA DE SEÑAS COLOMBIANA" = "DISCAPACIDAD AUDITIVA",
                           "DISCAPACIDAD FÍSICA" = "DISCAPACIDAD FISICA"))
 
+datatable(dataset, options = list(pageLength = 10, scrollX = TRUE))
+
 ```
 
+## Análisis exploratorio de los datos
+
+El análisis exploratorio de los datos se estructuró en cuatro partes principales, esto con el objetivo de responder a la pregunta de investigación que nos planteamos al iniciar este estudio. Estas partes son:
+
+**Análisis demográfico**
+
+En este análisis se exploraron diversas características relacionadas con los estudiantes, como su género, edad, pertenencia étnica, etc. A continuación se explica cómo se realizó cada diagrama:
+
+- **Distribución por género**: en este diagrama queríamos mostrar la distribución de los estudiantes por su género (femenino y masculino). Para ello se calcularon las frecuencias absolutas y relativas, se renombraron las categorías a "FEMENINO" y "MASCULINO" para mejorar la interpretación y, por último, se creó un diagrama de torta que ilustra la distribución porcentual.
+
+- **Distribución por edad**: la variable edad se analizó dividiéndola por rangos. A partir de estos rangos se creó un diagrama de barras que muestra la frecuencia de estudiantes en cada rango. Además, se crearon dos diagramas más, un gráfico de barras que muestra la distribución de los estudiantes por rangos de edad y género, y un gráfico de cajas que permite visualizar la dispersión y los valores típicos de la edad según el género.
+
+- **Distribución étnica**: para hacer este análisis, primero se creó una nueva columna en el dataset que clasifica si los estudiantes pertenecen o no a un grupo étnico. A partir de esta columna se generó un diagrama de torta que muestra estas proporciones. Luego, se filtraron los datos de los estudiantes que sí pertenecen a un grupo étnico y se creó un diagrama de barras con la frecuencia de cada grupo étnico.
+
+- **Distribución por discapacidad**: para esta variable se creó también una nueva columna para clasificar si el estudiante tiene o no una discapacidad y, a partir de ahí, se creó un gráfico de torta para mostrar estas proporciones. Luego, se filtraron los datos para solo incluir a los estudiantes con discapacidad y se creó un gráfico de barras que muestra las frecuencias para cada tipo de discapacidad.
+
+- **Distribución por tipo de desplazamiento**: para mostrar esta variable se generó un gráfico de barras que muestra la distribución de los estudiantes según el tipo de desplazamiento reportado en el dataset.
+
+**Análisis geográfico**
+
+Este análisis estuvo centrado en ver cómo los estudiantes se distribuyen de acuerdo a su municipio y tipo de zona.
+
+- **Distribucion de la población por municipio**: para hacer este gráfico, se obtuvo la información sobre la población desplazada desde una base de datos en línea (API), y se organizó en una tabla (data frame). Luego, se seleccionaron los datos más relevantes, se corrigieron los nombres y se calcularon valores como la población total por municipio. A continuación, se incorporó la información geográfica, agregando la ubicación de cada municipio. Finalmente, se creó un mapa que mostró la distribución de la población desplazada en Santander, representando los municipios con más desplazados con colores más intensos.
+
+**Análisis de las instituciones**
+
+El análisis de las instituciones estuvo orientado a explorar aspectos como el número de estudiantes por institución y la clasificación de estas según diferentes criterios.
+
+- **Distribución por sector**: 
+
+- **Distribución por zona**: para realizar este diagrama se obtuvieron los datos sobre las instituciones, enfocándose en si eran rurales o urbanas. Luego se organizó la información seleccionando los datos relevantes y se contó cuántas instituciones pertenecían a cada categoría.A partir de esto, se creó un gráfico de torta. 
+
+- **Distribución por método educativo**: 
+
+- **Instituciones con mayor cantidad de estudiantes**: 
+
+- **Instituciones que han absorbido mas sedes**: 
+
+**Análisis relacional**
+
+
+En este análisis quisimos identificar patrones y conexiones significativas entre diferentes variables.
+
+- **Relación entre el método educativo entre caracteristicas demográficas**: para analizar estas relaciones, se obtuvieron datos de la API proporcionada por el sitio oficial donde se aloja el dataset, transformándolos en un formato adecuado para el análisis. Posteriormente, se limpiaron y organizaron los datos, calculando aspectos clave como la cantidad de hombres y mujeres, la población total por grupo étnico y la edad promedio de los estudiantes según el método educativo. Estas relaciones se presentaron mediante diagramas de dispersión. 
+
+- **Relación entre los motivos de desplazamiento con el grupo étnico de las personas**: para crear este gráfico, al igual que el anterior, los datos se obtuvieron a través de la API, luego se limpiaron y prepararon para realizar la gráfica correspondiente. Se calculó la población desplazada según el motivo y el grupo étnico. Finalmente, se generó un gráfico de dispersión en el que el tamaño de los puntos muestra la cantidad de personas desplazadas y los colores distinguen los grupos étnicos. 
+
+# Resultados
+
+
 ## Análisis demográfico
+
 Enfocado en analizar las características de la población estudiantil desplazada. 
 
 **¿Cómo se distribuye la población por género?**
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
-
 datos_genero <- dataset %>%
   count(d_genero) %>%
   mutate(
@@ -173,13 +274,11 @@ ggplot(datos_genero, aes(x = "", y = n, fill = renombre_genero)) +
     plot.title = element_text(hjust = 0.5)) 
 ```
 
+La distribución por género muestra que el 48.7% de los estudiantes son mujeres (8.801), mientras que el 51.3% son hombres (9.261). Esto indica que, aunque la mayoría de los estudiantes son hombres, la diferencia en términos de género es relativamente pequeña.
+
 **¿Cuál es la distribución de la población por edades?**
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
-
 n_datos <- nrow(dataset)  
 rango <- max(dataset$d_edad) - min(dataset$d_edad)
 intervalos <- ceiling(1 + log2(n_datos))  
@@ -204,12 +303,9 @@ ggplot(dataset, aes(x = rango_edad)) +
         panel.background = element_blank())
 ```
 
+El rango de 11 a 15 años es el que agrupa la mayor parte de la población, con 7.068 registros. Le sigue el rango de 15 a 19 años con 5.118 registros, y luego el de 7 a 11 años, con 4.842 registros.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
-
 datos_barras <- dataset %>%
   group_by(rango_edad, d_genero) %>%
   summarise(conteo = n(), .groups = "drop")  
@@ -226,29 +322,32 @@ ggplot(datos_barras, aes(x = rango_edad, y = conteo, fill = d_genero)) +
         axis.text.x = element_text(size = 7)) 
 ```
 
+También se analizó la distribución de las edades por género. En el rango de 11 a 15 años, se registraron 3.457 mujeres y 3.611 hombres. En el rango de 15 a 19 años, la distribución es de 2.496 mujeres y 2.622 hombres, mientras que en el rango de 7 a 11 años, hay 2.345 mujeres y 2.497 hombres.
+
+En los únicos rangos donde se registran más mujeres que hombres son 23 a 27 años, con 37 mujeres y 27 hombres; 35 a 39 años, con 12 mujeres y 8 hombres; y en el rango de 59 a 63, con 4 mujeres frente a 1 hombre.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
-
 ggplot(dataset, aes(x = d_genero, y = d_edad, fill = d_genero)) +
   geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2) +  
   labs(title = "Distribución de edad por género",
        x = "Género", y = "Edad") +  
   theme(plot.title = element_text(hjust = 0.5),
-                panel.background = element_blank())  +
-  theme(legend.position = "none") 
+        panel.background = element_rect(fill = "white"),  
+        panel.grid.major = element_line(color = "gray", size = 0.5),  
+        panel.grid.minor = element_line(color = "gray", size = 0.25),  
+        legend.position = "none") + 
+  scale_y_continuous(breaks = seq(0, 70, by = 5)) 
 ```
 
+En este gráfico podemos observar que la mediana de la edad en ambos géneros se encuentra aproximadamente en los 13 años, lo que indica que el 50 % de los estudiantes tienen 13 años o menos. El tercer cuartil, que representa aproximadamente al 75 % de los estudiantes, alcanza hasta los 15 años, lo que significa que el 75 % de los registros tienen 15 años o menos.
+
+En cuanto a los bigotes del diagrama, podemos notar que en las mujeres los bigotes inferiores se extienden un poco más abajo que en los hombres. Esto significa que la edad mínima en las mujeres es de aproximadamente 3 años, mientras que en los hombres es de alrededor de 4 años. En ambos géneros, los bigotes superiores se extienden hasta aproximadamente los 23 años. A partir de esa edad comienzan a aparecer los outliers.
+
+La presencia de tantos outliers indica que hay una pequeña cantidad de estudiantes fuera del rango típico de edad, pero estos valores atípicos son muy variados en cuanto a la edad. En el caso de las mujeres, los outliers se extienden hasta los 62 o 63 años, mientras que en los hombres llegan aproximadamente hasta los 69 años.
 
 **¿Cómo se distribuye la población según la etnia? **
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
-
 dataset$pertenece_etnia <- ifelse(dataset$etnia == "NINGUN GRUPO ETNICO", "NO PERTENECE", "PERTENECE")
 
 ggplot(dataset, aes(x = "", fill = pertenece_etnia)) +
@@ -261,11 +360,9 @@ ggplot(dataset, aes(x = "", fill = pertenece_etnia)) +
   theme(plot.title = element_text(hjust = 0.5))  
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
+La distribución de la población según la etnia muestra que el 98.2 % de los estudiantes no pertenece a ningún grupo étnico, mientras que solo el 1.8 % (322 personas) sí pertenece a alguno.
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 dataset_etnia <- dataset[dataset$pertenece_etnia == "PERTENECE", ]
 
 ggplot(dataset_etnia, aes(y = etnia)) +
@@ -278,13 +375,11 @@ ggplot(dataset_etnia, aes(y = etnia)) +
         axis.text.y = element_text(angle = 0, hjust = 1))
 ```
 
+De estas 322 personas, la mayoría pertenece al grupo étnico de las negritudes, seguido de 72 personas que se identifican como afrodescendientes.
+
 **¿Qué proporción de la población tiene alguna discapacidad?**
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
-
 dataset$tiene_discapacidad <- ifelse(dataset$discapa == "NO TIENE DISCAPACIDAD", "NO TIENE", "TIENE")
 
 ggplot(dataset, aes(x = "", fill = tiene_discapacidad)) +
@@ -297,11 +392,9 @@ ggplot(dataset, aes(x = "", fill = tiene_discapacidad)) +
   theme(plot.title = element_text(hjust = 0.5)) 
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
+El 97.6% de la población no tiene ninguna discapacidad, lo que representa una gran mayoría en comparación con el 2.4% (442 personas) que sí presentan alguna discapacidad.
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 dataset_discapacidad <- dataset[dataset$tiene_discapacidad == "TIENE", ]
 
 ggplot(dataset_discapacidad, aes(x = discapa, fill = discapa)) +
@@ -317,13 +410,11 @@ ggplot(dataset_discapacidad, aes(x = discapa, fill = discapa)) +
         legend.title = element_blank())  
 ```
 
+En el gráfico siguiente, podemos observar que la mayoría de las 442 personas tienen discapacidad mental, con un total de 190 casos. Les siguen las personas con discapacidad psicosocial, que suman 91 en total.
+
 **¿Cuáles son los tipos de desplazamiento más comunes?**
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(RColorBrewer)
-
 ggplot(dataset, aes(y = d_tipo)) +
   geom_bar(fill = "red", color = "white") +  
   geom_text(stat = "count", aes(label = ..count..), hjust = -0.2, size = 3) +  
@@ -333,29 +424,17 @@ ggplot(dataset, aes(y = d_tipo)) +
         panel.background = element_blank(),  
         axis.text.x = element_text(angle = 0, hjust = 1),  
         legend.position = "none")  
-
 ```
 
+En el diagrama, podemos observar que los tres tipos de desplazamiento con más registros son los siguientes: el más frecuente es "VÍCTIMA", con un total de 12.532 registros, lo que representa la mayoría de los casos. En segundo lugar, se encuentra la categoría "EN SITUACIÓN DE DESPLAZAMIENTO", con 3.951 registros, y el tercer tipo más común es "DESPLAZAMIENTO FORZADO", con 1.034 registros.
+
 ## Análisis geográfico
+
 Enfocado en analizar cómo se distribuye la población. 
 
-**¿Cómo está distribuida la población entre los diferentes municipios y provincias?**
+**¿Cómo está distribuida la población entre los diferentes municipios?**
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
-# Instalar y cargar librerías necesarias
-if (!require(httr)) install.packages("httr")
-if (!require(jsonlite)) install.packages("jsonlite")
-if (!require(dplyr)) install.packages("dplyr")
-if (!require(ggplot2)) install.packages("ggplot2")
-if (!require(sf)) install.packages("sf")
-
-library(httr)        # Para realizar solicitudes HTTP
-library(jsonlite)    # Para manejar JSON
-library(dplyr)       # Para manipulación de datos
-library(ggplot2)     # Para visualización
-library(sf)          # Para trabajar con datos espaciales
-
-# Paso 1: Conexión a la API
 url <- "https://www.datos.gov.co/resource/wemp-b8gd.json"
 response <- GET(url)
 
@@ -366,14 +445,8 @@ if (status_code(response) == 200) {
   stop("Error al descargar los datos.")
 }
 
-# Paso 2: Procesamiento de datos
-# Convertir los datos a un marco de datos para su manipulación
 data <- as.data.frame(data)
 
-# Verificar columnas disponibles
-#print(names(data))
-
-# Adaptar según las columnas específicas del dataset
 data <- data %>% 
   select(d_nombmuni, d_nomzon, d_hombres, d_mujeres) %>% 
   rename(municipio = d_nombmuni, principio = d_nomzon, hombres = d_hombres, mujeres = d_mujeres) %>% 
@@ -384,37 +457,27 @@ data <- data %>%
   group_by(municipio, principio) %>% 
   summarise(total_poblacion = sum(poblacion, na.rm = TRUE))
 
-# Paso 3: Leer datos espaciales (shapefile)
 shape_data <- st_read("MGN_ADM_MPIO_GRAFICO.shp", quiet = TRUE)
 
-# Verificar nombres de columnas en el shapefile
-#print(names(shape_data))
-
-# Mostrar las primeras filas del shapefile para inspeccionar los datos
-#head(shape_data)
-
-# Filtrar solo los municipios del departamento de Santander
 shape_data <- shape_data %>% 
-  filter(dpto_cnmbr == "SANTANDER") %>%  # Filtrar por departamento
-  mutate(mpio_cnmbr = toupper(trimws(mpio_cnmbr)))  # Normalizar nombres de municipios
+  filter(dpto_cnmbr == "SANTANDER") %>%  
+  mutate(mpio_cnmbr = toupper(trimws(mpio_cnmbr)))  
 
-# Unir los datos del shapefile con los datos de población
 shape_data <- shape_data %>% 
   left_join(data, by = c("mpio_cnmbr" = "municipio"))
 
-# Verificar si la unión se realizó correctamente
+
 if (!"total_poblacion" %in% names(shape_data)) {
   stop("No se pudo unir correctamente los datos de población con los datos espaciales. Revisa los nombres de las columnas.")
 }
 
-# Paso 4: Crear el mapa de calor con nombres de los municipios
 ggplot(shape_data) +
   geom_sf(aes(fill = total_poblacion), color = NA) +
-  scale_fill_viridis_c(option = "plasma", na.value = "grey") +  # Áreas sin datos en blanco
+  scale_fill_viridis_c(option = "plasma", na.value = "grey") +  
   geom_sf_text(
-    data = shape_data %>% filter(!is.na(total_poblacion)),  # Solo municipios con datos de población
+    data = shape_data %>% filter(!is.na(total_poblacion)),  
     aes(label = mpio_cnmbr),
-    size = 3, color = "black", check_overlap = TRUE  # Tamaño y color del texto
+    size = 3, color = "black", check_overlap = TRUE  
   ) +
   labs(title = "Distribución de la población desplazada por municipios en Santander",
        fill = "Población") +
@@ -423,15 +486,18 @@ ggplot(shape_data) +
 
 ```
 
+Al analizar el mapa de la población desplazada en Santander, podemos observar una marcada desigualdad en su distribución. Cimitarra destaca como el municipio con el mayor número de estudiantes desplazados, lo cual se evidencia en su color amarillo intenso. Por otro lado, municipios como Betulia y Barichara presentan las cifras más bajas, reflejadas en tonos azules, lo que indica una menor incidencia del desplazamiento en estas zonas.
+
+Es importante resaltar que la concentración de municipios con alta población desplazada se observa principalmente en la zona sur del departamento. Los tonos azules y morados que predominan en esta región del mapa sin mencionar Cimitarra con su fuerte tono amarillo nos indican que un gran número de localidades se encuentran afectadas por esta problemática.
+
+
 ## Análisis de las instituciones 
 Enfocado en analizar las instituciones educativas y su relación con la población desplazada. 
 
 **¿A qué sector pertenecen las instituciones en donde estudian las personas desplazadas?**
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
 
-# Preparación de los datos 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
 datos_nomsec <- dataset %>%
   count(d_nomsec) %>%
   mutate(
@@ -440,7 +506,6 @@ datos_nomsec <- dataset %>%
     etiqueta = paste0(n, " (", porcentaje, "%)") 
   )
 
-# Creación del diagrama de torta
 ggplot(datos_nomsec, aes(x = "", y = n, fill = renombre_nomsec)) +
   geom_bar(stat = "identity", width = 1) +  
   coord_polar("y") +                       
@@ -454,12 +519,37 @@ ggplot(datos_nomsec, aes(x = "", y = n, fill = renombre_nomsec)) +
 
 ```
 
-**¿Qué método educativo es más común entre los estudiantes desplazados?**
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
+**¿A qué zona pertenecen las instituciones en donde estudian las personas desplazadas?**
 
-# Preparación de los datos 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+zona_data <- dataset %>%
+  select(d_nomzon) %>%  
+  rename(zona = d_nomzon) %>%  
+  mutate(zona = toupper(trimws(zona))) %>%  
+  group_by(zona) %>%  
+  summarise(cantidad = n()) %>%  
+  mutate(porcentaje = round(cantidad / sum(cantidad) * 100, 2),  
+         etiqueta = paste0(cantidad, " (", porcentaje, "%)"))  
+
+ggplot(zona_data, aes(x = "", y = cantidad, fill = zona)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = etiqueta), position = position_stack(vjust = 0.5), size = 4) +  
+  scale_fill_brewer(palette = "Set3") +
+  labs(title = "Distribución de instituciones por zona (rural/urbana)",
+       fill = "Zona") +
+  theme_void() +
+  theme(axis.text.x = element_blank(),  
+        axis.ticks = element_blank())  
+
+```
+
+En esta distribución podemos observar que la mayoria de las instituciones se encuentra en zona urbana con un 56.9 % frente a un 43.1 % en las zonas rurales. 
+
+**¿Qué método educativo es más común entre los estudiantes desplazados?**
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
 datos_metodo <- dataset %>%
   count(metodo) %>%
   mutate(
@@ -467,80 +557,62 @@ datos_metodo <- dataset %>%
     etiqueta = paste0(n, " (", porcentaje, "%)")  
   )
 
-# Creación del diagrama de torta
-ggplot(datos_metodo, aes(x = "", y = n, fill = metodo)) +
-  geom_bar(stat = "identity", width = 1) +  
-  coord_polar("y") +                       
-  geom_text(aes(label = etiqueta),          
-            position = position_stack(vjust = 0.5), size = 4) + 
-  labs(title = "Distribución por metodo", fill = "Metodo") +
-  theme_void() +                           
-  theme(
-    legend.position = "right",
-    plot.title = element_text(hjust = 0.5)) 
-
+ggplot(datos_metodo, aes(x = metodo, y = porcentaje, fill = metodo)) +
+  geom_bar(stat = "identity", fill = "orange", width = 0.7) +  
+  geom_text(aes(label = etiqueta), vjust = 0.5, color = "black", size = 3, hjust = 0.3) + 
+  labs(title = "Distribución por método", 
+       x = "Método",
+       y = "Porcentaje de distribución") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        panel.grid = element_blank(),
+        plot.title = element_text(hjust = 0.5)) 
 ```
 
 **¿Cuáles son los institutos con mayor número de estudiantes desplazados?**
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
 
-# Agrupar por institución y contar el número de estudiantes en cada una
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
 conteo_inst <- dataset %>%
   group_by(d_nombinst) %>%
   summarise(total_estudiantes = n()) %>%  
-  arrange(desc(total_estudiantes))  # 
+  arrange(desc(total_estudiantes))  
 
-# Filtrar las instituciones con más estudiantes desplazados
 est_x_inst <- head(conteo_inst, 10)
 
-# Creación del diagrama de barras para instituciones con mas estudiantes 
-ggplot(est_x_inst, aes(x = reorder(d_nombinst, -total_estudiantes), y = total_estudiantes)) +
-  geom_bar(stat = "identity", fill = "violet") + 
-  geom_text(aes(label = total_estudiantes), vjust = -0.5) +
+ggplot(est_x_inst, aes(x = reorder(d_nombinst, total_estudiantes), y = total_estudiantes, fill = d_nombinst)) +
+  geom_bar(stat = "identity", color = "white") + 
+  geom_text(aes(label = total_estudiantes), vjust = -0.5, size = 2.5) +
+  scale_fill_brewer(palette = "Set3") +  # Colores diferentes por categoría
   labs(title = "Instituciones con más estudiantes desplazados",
-       x = "Institución", 
-       y = "Número de estudiantes desplazados") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+       x = "Institución", y = "Estudiantes desplazados") +
+  theme(plot.title = element_text(hjust = -1),  
+        panel.background = element_blank(),  
+        axis.text.x = element_blank(),  
+        legend.position = "right",  
+        legend.title = element_blank())  
 ```
-
-**¿Qué instituciones han absorbido más sedes?** 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-
-# Contar cuántas sedes ha absorbido cada institución
-inst_sedes <- dataset %>%
-  group_by(d_nombinst) %>%
-  summarise(sedes_absorbidas = n_distinct(d_sede)) %>%
-  arrange(desc(sedes_absorbidas))
-
-# Ver las 10 instituciones con más sedes absorbidas
-inst_x_sedes <- head(inst_sedes, 10)
-
-ggplot(inst_x_sedes, aes(x = reorder(d_nombinst, -sedes_absorbidas), y = sedes_absorbidas)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
-  geom_text(aes(label = sedes_absorbidas), vjust = -0.5) +
-  labs(title = "Instituciones que más colegios pequeños han absorbido como sedes",
-       x = "Institución", 
-       y = "Número de sedes absorbidas") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
-
 
 ## Análisis relacional 
 Enfocado en explorar correlaciones o patrones entre las variables del dataset. 
 
 **¿Existe relación entre el método educativo y características demográficas como género, étnica y edad?**
 
-**¿Cómo se relacionan los motivos de desplazamiento con el grupo étnico de los personas?**
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
--   Información resumida sobre las variables de interés (luego de la limpieza)
--   Mostrar información no evidente
--   Resultados en forma de gráfico y tablas (Facilidad para ver y comprender los resutados)
+url <- "https://www.datos.gov.co/resource/wemp-b8gd.json"
+response <- GET(url)
+
+if (status_code(response) == 200) {
+  data <- fromJSON(content(response, as = "text"))
+  print("Datos descargados con éxito.")
+} else {
+  stop("Error al descargar los datos.")
+}
+
+data <- as.data.frame(data)  
+
+```
 
 # Discusión
 
@@ -551,3 +623,4 @@ Interpretación de los resultados, discutir si los resultados responden a la pre
 Resumen del problema, resumen de como se abordo el problema (metodologia), ideas interesantes en el analisis, implicaciones para el consumidor, limitaciones de analisis y como se podria mejorar.
 
 # Referencias
+[1] Gómez, L. (2024, June 23). Aumentaron los desplazamientos forzados en Colombia: Más de 13.500 personas han sido víctimas en 2024. Infobae.
