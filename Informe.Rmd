@@ -108,6 +108,7 @@ if (!require(skimr)) install.packages("skimr")
 if (!require(RColorBrewer)) install.packages("RColorBrewer")
 if (!require(kableExtra)) install.packages("kableExtra")
 if (!require(DT)) install.packages("DT")
+if (!require(tidyr)) install.packages("tidyr")
 
 ```
 
@@ -122,6 +123,7 @@ library(skimr)
 library(RColorBrewer)
 library(kableExtra)
 library(DT)
+library(tidyr)
 
 ```
 
@@ -605,14 +607,127 @@ response <- GET(url)
 
 if (status_code(response) == 200) {
   data <- fromJSON(content(response, as = "text"))
-  print("Datos descargados con éxito.")
+  #print("Datos descargados con éxito.")
+} else {
+  stop("Error al descargar los datos.")
+}
+
+
+genero_data <- data %>%
+  select(metodo, d_hombres, d_mujeres) %>%
+  rename(metodo = metodo, hombres = d_hombres, mujeres = d_mujeres) %>%
+  mutate(hombres = as.numeric(hombres),
+         mujeres = as.numeric(mujeres)) %>%
+  group_by(metodo) %>%
+  summarise(total_hombres = sum(hombres, na.rm = TRUE),
+            total_mujeres = sum(mujeres, na.rm = TRUE)) %>%
+  pivot_longer(cols = c(total_hombres, total_mujeres),
+               names_to = "genero",
+               values_to = "cantidad")
+
+ggplot(genero_data, aes(x = metodo, y = cantidad, color = genero)) +
+  geom_point(size = 5, alpha = 0.7) +
+  labs(title = "Relación entre método educativo y sexo",
+       x = "Método educativo",
+       y = "Cantidad",
+       color = "Sexo") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+         plot.title = element_text(hjust = 0.5))
+
+```
+
+En esta gráfica se puede observar que la mayoría de los estudiantes emplean el método de estudio tradicional. También se muestra que en los métodos de educación tradicional, escuela nueva y post primaria, la mayoría de los estudiantes son hombres. En los métodos de media rural y SAT, las cifras son similares para ambos géneros, con los puntos representativos superpuestos en la misma posición. Sin embargo, en el método "Programa para Jóvenes en Extraedad y Adultos", se observa una mayor cantidad de mujeres que de hombres.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+etnico_data <- data %>%
+  select(metodo, etnia, d_hombres, d_mujeres) %>%
+  rename(metodo = metodo, grupo_etnico = etnia, hombres = d_hombres, mujeres = d_mujeres) %>%
+  mutate(hombres = as.numeric(hombres),
+         mujeres = as.numeric(mujeres),
+         grupo_etnico = toupper(trimws(grupo_etnico))) %>%
+  group_by(metodo, grupo_etnico) %>%
+  summarise(total_poblacion = sum(hombres + mujeres, na.rm = TRUE))
+
+ggplot(etnico_data, aes(x = metodo, y = total_poblacion, color = grupo_etnico)) +
+  geom_point(size = 5, alpha = 0.7) +
+  labs(title = "Relación entre método educativo y grupo étnico",
+       x = "Método educativo",
+       y = "Población total",
+       color = "Grupo étnico") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+En este gráfico podemos notar que, para todos los métodos, la mayoría de los estudiantes no pertenecen a ningún grupo étnico, lo cual tiene sentido, ya que, como vimos anteriormente, más del 90% de los registros corresponden a personas que no se identifican con ningún grupo étnico. También podemos observar que, por ejemplo, las personas del grupo étnico U'WA eligen el método de estudio "Escuela Nueva", al igual que los del grupo Zenú. En el "Programa para Jóvenes en Extraedad y Adultos", se destaca la presencia de los grupos étnicos Ebera Chami, y la etnia Negritudes aparece en la "Educación Tradicional" y la "Media Rural". Además, también se observa la presencia del grupo Piapoco en la "Educación Tradicional".
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+edad_data <- data %>%
+  select(metodo, d_edad) %>%  
+  rename(metodo = metodo, edad = d_edad) %>%
+  mutate(edad = as.numeric(edad)) %>%
+  group_by(metodo) %>%
+  summarise(promedio_edad = mean(edad, na.rm = TRUE))
+
+ggplot(edad_data, aes(x = metodo, y = promedio_edad)) +
+  geom_point(color = "purple", size = 5, alpha = 0.7) +
+  labs(title = "Relación entre método educativo y promedio de edad",
+       x = "Método educativo",
+       y = "Promedio de edad") +
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+En este gráfico, podemos observar las edades promedio de los estudiantes según el método de estudio. En "Educación Tradicional", la edad promedio es de aproximadamente 13 años, mientras que en "Escuela Nueva" es de aproximadamente 9 años. En "Media Rural", la edad promedio es de alrededor de 17 años, y en "Postprimaria", es de 15 años. En el "Programa para Jóvenes en Extraedad y Adultos", la edad promedio es de 18 años, y en el SAT es de 24 años.
+
+**¿Cómo se relacionan los motivos de desplazamiento con el grupo étnico de los personas?**
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+url <- "https://www.datos.gov.co/resource/wemp-b8gd.json"
+response <- GET(url)
+
+if (status_code(response) == 200) {
+  data <- fromJSON(content(response, as = "text"))
+  #print("Datos descargados con éxito.")
 } else {
   stop("Error al descargar los datos.")
 }
 
 data <- as.data.frame(data)  
 
+displacement_data <- data %>%
+  select(d_tipo, etnia, d_hombres, d_mujeres) %>%
+  rename(motivo = d_tipo, grupo_etnico = etnia, hombres = d_hombres, mujeres = d_mujeres) %>%
+  mutate(hombres = as.numeric(hombres),
+         mujeres = as.numeric(mujeres),
+         grupo_etnico = toupper(trimws(grupo_etnico)),
+         motivo = toupper(trimws(motivo))) %>%
+  group_by(motivo, grupo_etnico) %>%
+  summarise(total_poblacion = sum(hombres + mujeres, na.rm = TRUE))
+
+ggplot(displacement_data, aes(x = motivo, y = grupo_etnico, size = total_poblacion, color = grupo_etnico)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Relación entre motivo de desplazamiento y grupo étnico",
+       x = "Motivo de desplazamiento",
+       y = "Grupo étnico",
+       size = "Población total",
+       color = "Grupo étnico") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        plot.title = element_text(hjust = 0.5))
+
 ```
+
+En esta gráfica, se observa que la mayoría de los registros corresponden a personas que no pertenecen a ningún grupo étnico, lo que tiene sentido, ya que más del 90% de los datos corresponden a este grupo. En cuanto a los que si pertenecen a un grupo etnico, los registros son menores, representado con esferas de mucho menor tamaño. El grupo afrodescendiente aparece en "Desaparición Forzada", "Desplazamiento Forzado" y "En situación de desplazamiento". El grupo étnico Ébera Chami está presente en "Desplazamiento forzado" y "En situación de desplazamiento", al igual que las Negritudes, que aparecen en estas mismas dos categorías. El grupo U'wa aparece en la categoría "Víctima de minas", y los Zenú solo en "Situación de desplazamiento".
+
+
 
 # Discusión
 
